@@ -140,18 +140,18 @@ Loki.S01E01_fra_FULL_PGS.sup
 
 Objectif principal : convertir les sous-titres basés sur des images en texte.
 
-- [ ] Étudier et choisir le moteur OCR adapté au projet.
-- [ ] Intégrer le moteur retenu sans dépendre de Subtitle Edit.
-- [ ] PGS → SRT.
+- [x] Étudier et choisir le moteur OCR adapté au projet.
+- [x] Intégrer le moteur retenu sans dépendre de Subtitle Edit.
+- [x] PGS → SRT.
 - [ ] VobSub → SRT si techniquement pertinent.
-- [ ] Choix de la langue OCR.
-- [ ] Prétraitement des images si nécessaire.
-- [ ] Préserver précisément les timecodes.
-- [ ] Afficher la progression OCR.
-- [ ] Détecter/signaler les résultats incertains.
-- [ ] Prévisualiser le texte reconnu.
-- [ ] Permettre la correction avant export.
-- [ ] Export UTF-8 en SRT.
+- [x] Choix de la langue OCR.
+- [x] Prétraitement des images si nécessaire.
+- [x] Préserver précisément les timecodes.
+- [x] Afficher la progression OCR.
+- [x] Détecter/signaler les résultats incertains.
+- [x] Prévisualiser le texte reconnu.
+- [x] Permettre la correction avant export.
+- [x] Export UTF-8 en SRT.
 - [ ] Traitement OCR par lot.
 
 ---
