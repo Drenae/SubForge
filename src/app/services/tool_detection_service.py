@@ -2,13 +2,17 @@ import shutil
 import subprocess
 
 from app.models.tool_info import ToolInfo
+from app.services.logging_service import LoggingService
 
 
 class ToolDetectionService:
+    _logger = LoggingService.get_logger("tools")
+
     @staticmethod
     def detect(executable: str) -> ToolInfo:
         path = shutil.which(executable)
         if not path:
+            ToolDetectionService._logger.warning("%s introuvable dans le PATH système", executable)
             return ToolInfo(
                 name=executable,
                 available=False,
@@ -28,14 +32,19 @@ class ToolDetectionService:
             output = (result.stdout or result.stderr).strip()
             first_line = output.splitlines()[0] if output else ""
             version = ToolDetectionService._extract_version(first_line)
+            available = result.returncode == 0
+            ToolDetectionService._logger.info(
+                "%s: available=%s version=%s path=%s", executable, available, version, path
+            )
             return ToolInfo(
                 name=executable,
-                available=result.returncode == 0,
+                available=available,
                 path=path,
                 version=version,
-                error=None if result.returncode == 0 else first_line or "Impossible d'interroger l'exécutable.",
+                error=None if available else first_line or "Impossible d'interroger l'exécutable.",
             )
         except (OSError, subprocess.SubprocessError) as exc:
+            ToolDetectionService._logger.exception("Erreur pendant la détection de %s", executable)
             return ToolInfo(name=executable, available=False, path=path, error=str(exc))
 
     @staticmethod
