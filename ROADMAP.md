@@ -14,15 +14,15 @@ L'application doit fonctionner aussi bien sur un épisode unique que sur une sai
 
 ## Phase 1 — Fondations
 
-- [ ] Définir une architecture modulaire.
-- [ ] Séparer UI, logique, modèles et services.
-- [ ] Mettre en place la navigation principale.
-- [ ] Créer le thème visuel de SubForge.
-- [ ] Centraliser la configuration de l'application.
-- [ ] Détecter automatiquement FFmpeg et FFprobe.
-- [ ] Afficher clairement leur disponibilité/version.
-- [ ] Préparer la gestion centralisée des erreurs et logs.
-- [ ] Préparer les tests unitaires des services indépendants de l'UI.
+- [x] Définir une architecture modulaire.
+- [x] Séparer UI, logique, modèles et services.
+- [x] Mettre en place la navigation principale.
+- [x] Créer le thème visuel de SubForge.
+- [x] Centraliser la configuration de l'application.
+- [x] Détecter automatiquement FFmpeg et FFprobe.
+- [x] Afficher clairement leur disponibilité/version.
+- [x] Préparer la gestion centralisée des erreurs et logs.
+- [x] Préparer les tests unitaires des services indépendants de l'UI.
 
 ### Architecture cible initiale
 
