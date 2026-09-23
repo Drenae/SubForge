@@ -62,8 +62,38 @@ class ExtractionService:
                 continue
         raise OSError("Trop de fichiers portent le même nom")
 
+    @staticmethod
+    async def _duration(source: Path) -> float | None:
+        executable = shutil.which("ffprobe")
+        if not executable:
+            return None
+        try:
+            process = await asyncio.create_subprocess_exec(
+                executable, "-v", "error", "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1", str(source),
+                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
+            output, _ = await asyncio.wait_for(process.communicate(), timeout=20)
+            duration = float(output.strip())
+            return duration if duration > 0 and process.returncode == 0 else None
+        except (OSError, ValueError, asyncio.TimeoutError):
+            if "process" in locals() and process.returncode is None:
+                process.kill()
+                await process.communicate()
+            return None
+
+    @staticmethod
+    def _progress_seconds(value: str) -> float | None:
+        try:
+            hours, minutes, seconds = value.split(":")
+            return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+        except ValueError:
+            return None
+
     @classmethod
-    async def extract(cls, job: ExtractionJob, destination: Path) -> Path:
+    async def extract(cls, job: ExtractionJob, destination: Path,
+                      on_partial: Callable[[float | None], None] | None = None) -> Path:
         executable = shutil.which("ffmpeg")
         if not executable:
             raise RuntimeError("FFmpeg est introuvable. Vérifiez les Paramètres.")
@@ -76,14 +106,32 @@ class ExtractionService:
         temporary = destination / f".subforge-{uuid.uuid4().hex}.part"
         process = None
         try:
+            duration = await cls._duration(job.source) if on_partial else None
+            if on_partial:
+                on_partial(0.0 if duration else None)
             process = await asyncio.create_subprocess_exec(
                 executable, "-nostdin", "-hide_banner", "-loglevel", "error", "-n",
+                "-progress", "pipe:1", "-stats_period", "0.5",
                 "-i", str(job.source), "-map", f"0:{job.track.index}", "-c:s", "copy",
                 "-f", fmt[0], str(temporary),
-                stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
-            stderr = (await process.communicate())[1]
+            stderr_task = asyncio.create_task(process.stderr.read())
+            try:
+                while True:
+                    line = await process.stdout.readline()
+                    if not line:
+                        break
+                    if on_partial and duration and line.startswith(b"out_time="):
+                        seconds = cls._progress_seconds(line.partition(b"=")[2].decode("ascii", errors="replace").strip())
+                        if seconds is not None:
+                            on_partial(min(0.99, max(0.0, seconds / duration)))
+                await process.wait()
+                stderr = await stderr_task
+            finally:
+                if not stderr_task.done():
+                    stderr_task.cancel()
             if process.returncode != 0:
                 raise RuntimeError(stderr.decode("utf-8", errors="replace").strip() or "FFmpeg a échoué")
             if not temporary.is_file() or temporary.stat().st_size == 0:
@@ -104,13 +152,15 @@ class ExtractionService:
     @classmethod
     async def run_batch(cls, jobs: list[ExtractionJob], destination: Path,
                         cancelled: Callable[[], bool],
-                        on_progress: Callable[[int, int, ExtractionResult], None]) -> list[ExtractionResult]:
+                        on_progress: Callable[[int, int, ExtractionResult], None],
+                        on_partial: Callable[[int, int, float | None], None] | None = None) -> list[ExtractionResult]:
         results = []
         for job in jobs:
             if cancelled():
                 break
             try:
-                result = ExtractionResult(job, output=await cls.extract(job, destination))
+                partial = (lambda fraction: on_partial(len(results), len(jobs), fraction)) if on_partial else None
+                result = ExtractionResult(job, output=await cls.extract(job, destination, partial))
             except Exception as exc:
                 result = ExtractionResult(job, error=str(exc))
             results.append(result)

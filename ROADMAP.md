@@ -121,7 +121,7 @@ L'architecture pourra évoluer si les besoins réels du projet le justifient.
 - [x] Choix du dossier de destination.
 - [x] Nommage automatique et lisible.
 - [x] Prévention des écrasements accidentels.
-- [ ] Progression par fichier et progression globale.
+- [x] Progression par fichier et progression globale.
 - [x] Possibilité d'annuler une opération.
 - [x] Journal d'activité.
 - [x] Rapport des réussites et erreurs.

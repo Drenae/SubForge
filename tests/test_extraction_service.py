@@ -8,6 +8,11 @@ from app.models.subtitle_track import SubtitleTrack
 from app.services.extraction_service import ExtractionJob, ExtractionService
 
 
+def test_progress_timestamp_parsing():
+    assert ExtractionService._progress_seconds("01:02:03.500000") == 3723.5
+    assert ExtractionService._progress_seconds("N/A") is None
+
+
 def test_output_name_and_unsupported_codec():
     from pathlib import Path
     job = ExtractionJob(Path("Loki.S01E01.mkv"), SubtitleTrack(4, "hdmv_pgs_subtitle", "fra", forced=True))
@@ -28,7 +33,9 @@ def test_ffmpeg_copies_subtitle_and_never_overwrites(tmp_path):
     job = ExtractionJob(source, SubtitleTrack(0, "subrip", "fra"))
 
     async def run():
-        first = await ExtractionService.extract(job, output_dir)
+        fractions = []
+        first = await ExtractionService.extract(job, output_dir, fractions.append)
+        assert fractions and any(value is not None for value in fractions)
         second = await ExtractionService.extract(job, output_dir)
         assert first != second
         assert first.read_bytes() == second.read_bytes()

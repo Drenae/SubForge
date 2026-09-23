@@ -18,6 +18,7 @@ class ProcessingView(ft.Container):
         self.output_label = ft.Text("Aucun dossier de destination choisi", color=theme.TEXT_MUTED)
         self.summary = ft.Text(color=theme.TEXT_MUTED)
         self.progress = ft.ProgressBar(value=0, color=theme.ACCENT)
+        self.file_progress = ft.ProgressBar(value=0, color=theme.ACCENT)
         self.report = ft.ListView(expand=True, spacing=6)
         super().__init__(
             expand=True,
@@ -30,7 +31,7 @@ class ProcessingView(ft.Container):
                     ft.Button("Extraire", icon=ft.Icons.SAVE_ALT_ROUNDED, on_click=self._extract),
                     ft.Button("Annuler après la piste en cours", on_click=self._cancel),
                 ]),
-                self.output_label, self.summary, self.progress, self.report,
+                self.output_label, self.summary, self.progress, self.file_progress, self.report,
             ]),
         )
         self._refresh_summary()
@@ -73,10 +74,12 @@ class ProcessingView(ft.Container):
         self.cancel_requested = False
         self.report.controls = []
         self.progress.value = 0
+        self.file_progress.value = 0
         self._safe_update()
 
         def on_progress(done, total, result):
             self.progress.value = done / total
+            self.file_progress.value = 1
             description = f"{result.job.source.name} · piste #{result.job.track.index}"
             if result.error:
                 self.report.controls.append(ft.Text(f"Erreur : {description} — {result.error}", color="#F28B82", selectable=True))
@@ -85,9 +88,15 @@ class ProcessingView(ft.Container):
             self.summary.value = f"{done}/{total} piste(s) traitée(s)"
             self._safe_update()
 
+        def on_partial(done, total, fraction):
+            self.file_progress.value = fraction
+            self.progress.value = (done + fraction) / total if fraction is not None else done / total
+            self.summary.value = f"{done}/{total} piste(s) terminée(s) · piste en cours"
+            self._safe_update()
+
         try:
             results = await ExtractionService.run_batch(
-                jobs, self.destination, lambda: self.cancel_requested, on_progress,
+                jobs, self.destination, lambda: self.cancel_requested, on_progress, on_partial,
             )
             succeeded = sum(result.output is not None for result in results)
             failed = len(results) - succeeded

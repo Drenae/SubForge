@@ -203,18 +203,18 @@ class MediaView(ft.Container):
             bgcolor=theme.SURFACE,
             border=ft.Border.all(1, theme.BORDER),
             border_radius=8,
-            content=ft.ExpansionTile(
-                title=ft.Row(controls=[
+            padding=ft.Padding.symmetric(horizontal=14, vertical=10),
+            content=ft.Column(spacing=8, controls=[
+                ft.Row(controls=[
                     ft.Icon(ft.Icons.MOVIE_ROUNDED, color=theme.ACCENT),
                     ft.Text(media.name, color=theme.TEXT, weight=ft.FontWeight.W_600, expand=True),
                     ft.Text(f"{len(tracks) if tracks is not None else '—'} piste(s)", color=theme.TEXT_MUTED),
                     ft.IconButton(icon=ft.Icons.CLOSE_ROUNDED, tooltip="Retirer",
                                   on_click=lambda _, p=str(media.path): self._remove(p)),
                 ]),
-                subtitle=ft.Text(str(media.path), color=theme.TEXT_MUTED, size=12, selectable=True),
-                controls=[ft.Container(padding=ft.Padding.symmetric(horizontal=16, vertical=8),
-                                       content=ft.Column(controls=children, spacing=5))],
-            ),
+                ft.Text(str(media.path), color=theme.TEXT_MUTED, size=12, selectable=True),
+                ft.Column(controls=children, spacing=5),
+            ]),
         )
 
     def _track_row(self, key, track):
