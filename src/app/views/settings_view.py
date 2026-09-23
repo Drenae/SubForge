@@ -1,17 +1,41 @@
 import flet as ft
 
+from app.components.tool_status_card import ToolStatusCard
 from app.config import theme
+from app.services.tool_detection_service import ToolDetectionService
 
 
 class SettingsView(ft.Container):
     def __init__(self):
+        self.tools_column = ft.Column(spacing=12)
+        self.refresh_button = ft.Button(
+            "Actualiser",
+            icon=ft.Icons.REFRESH_ROUNDED,
+            on_click=self._refresh_tools,
+        )
         super().__init__(
             expand=True,
             padding=32,
             content=ft.Column(
+                spacing=18,
                 controls=[
                     ft.Text("Paramètres", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
-                    ft.Text("Les dépendances et préférences de SubForge seront configurées ici.", color=theme.TEXT_MUTED),
-                ]
+                    ft.Text("Dépendances externes", size=18, weight=ft.FontWeight.W_600, color=theme.TEXT),
+                    ft.Text(
+                        "SubForge utilise FFmpeg et FFprobe pour analyser et extraire les sous-titres.",
+                        color=theme.TEXT_MUTED,
+                    ),
+                    self.refresh_button,
+                    self.tools_column,
+                ],
             ),
         )
+        self._load_tools()
+
+    def _load_tools(self) -> None:
+        tools = ToolDetectionService.detect_all()
+        self.tools_column.controls = [ToolStatusCard(info) for info in tools.values()]
+
+    def _refresh_tools(self, _=None) -> None:
+        self._load_tools()
+        self.tools_column.update()
