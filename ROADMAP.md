@@ -84,18 +84,18 @@ L'architecture pourra évoluer si les besoins réels du projet le justifient.
 
 ## Phase 4 — Interface des pistes
 
-- [ ] Afficher les médias et leurs pistes de sous-titres.
-- [ ] Sélection individuelle des pistes.
-- [ ] Sélection/désélection globale.
-- [ ] Afficher clairement :
+- [x] Afficher les médias et leurs pistes de sous-titres.
+- [x] Sélection individuelle des pistes.
+- [x] Sélection/désélection globale.
+- [x] Afficher clairement :
   - langue ;
   - format ;
   - Forced ;
   - Default ;
   - titre ;
   - index.
-- [ ] Distinguer visuellement les pistes forcées.
-- [ ] Prévoir une interface utilisable avec beaucoup d'épisodes et de pistes.
+- [x] Distinguer visuellement les pistes forcées.
+- [x] Prévoir une interface utilisable avec beaucoup d'épisodes et de pistes.
 
 ---
 

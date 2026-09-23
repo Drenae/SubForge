@@ -13,7 +13,7 @@ class MediaView(ft.Container):
         self.state = state
         self.picker = ft.FilePicker()
         self.status = ft.Text(color=theme.TEXT_MUTED, selectable=True)
-        self.file_list = ft.Column(spacing=8, scroll=ft.ScrollMode.AUTO, expand=True)
+        self.file_list = ft.ListView(spacing=8, expand=True)
         self.count = ft.Text(color=theme.TEXT_MUTED)
         self.analyzing = False
         super().__init__(
@@ -30,6 +30,10 @@ class MediaView(ft.Container):
                         ft.Button("Importer un dossier", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._pick_folder),
                         ft.Button("Tout retirer", icon=ft.Icons.DELETE_OUTLINE_ROUNDED, on_click=self._clear),
                         ft.Button("Analyser les pistes", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze),
+                    ]),
+                    ft.Row(controls=[
+                        ft.Button("Tout sélectionner", on_click=lambda _: self._select_all(True)),
+                        ft.Button("Tout désélectionner", on_click=lambda _: self._select_all(False)),
                     ]),
                     self.status,
                     self.count,
@@ -87,11 +91,10 @@ class MediaView(ft.Container):
                 try:
                     tracks = await FFprobeService.analyze(media.path)
                     if key in self.state.files:
-                        self.state.tracks[key] = tracks
-                        self.state.analysis_errors.pop(key, None)
+                        self.state.set_tracks(key, tracks)
                 except FFprobeError as exc:
                     if key in self.state.files:
-                        self.state.tracks.pop(key, None)
+                        self.state.set_tracks(key, [])
                         self.state.analysis_errors[key] = str(exc)
                 self._render()
                 self.update()
@@ -112,40 +115,65 @@ class MediaView(ft.Container):
         self._render()
         self.update()
 
-    def _render(self):
-        files = list(self.state.files.values())
-        self.count.value = f"{len(files)} vidéo(s) chargée(s)"
-        self.file_list.controls = [
-            ft.Container(
-                bgcolor=theme.SURFACE,
-                border=ft.Border.all(1, theme.BORDER),
-                border_radius=8,
-                padding=12,
-                content=ft.Row(controls=[
-                    ft.Icon(ft.Icons.MOVIE_ROUNDED, color=theme.ACCENT),
-                    ft.Column(expand=True, spacing=2, controls=[
-                        ft.Text(media.name, color=theme.TEXT, weight=ft.FontWeight.W_600),
-                        ft.Text(str(media.path), color=theme.TEXT_MUTED, size=12, selectable=True),
-                        *self._track_labels(str(media.path).casefold()),
-                    ]),
-                    ft.Text(f"{media.size / 1024 / 1024:.1f} Mo", color=theme.TEXT_MUTED),
-                    ft.IconButton(icon=ft.Icons.CLOSE_ROUNDED, tooltip="Retirer", on_click=lambda _, p=str(media.path): self._remove(p)),
-                ]),
-            ) for media in files
-        ]
+    def _select_all(self, selected: bool):
+        self.state.select_all(selected)
+        self._render()
+        self.update()
 
-    def _track_labels(self, key: str) -> list[ft.Text]:
+    def _toggle_track(self, key: str, index: int, selected: bool):
+        self.state.select_track(key, index, selected)
+        self._update_count()
+        self.count.update()
+
+    def _update_count(self):
+        self.count.value = (f"{len(self.state.files)} vidéo(s) chargée(s) · "
+                            f"{len(self.state.selected_tracks)} piste(s) sélectionnée(s)")
+
+    def _render(self):
+        self._update_count()
+        self.file_list.controls = [self._media_tile(media) for media in self.state.files.values()]
+
+    def _media_tile(self, media):
+        key = str(media.path).casefold()
+        tracks = self.state.tracks.get(key)
         if key in self.state.analysis_errors:
-            return [ft.Text(self.state.analysis_errors[key], color="#F28B82", size=12)]
-        if key not in self.state.tracks:
-            return []
-        tracks = self.state.tracks[key]
-        if not tracks:
-            return [ft.Text("Aucune piste de sous-titres", color=theme.TEXT_MUTED, size=12)]
-        return [ft.Text(
-            f"#{track.index} · {track.language or 'Langue inconnue'} · {track.codec}"
-            + (f" · {track.title}" if track.title else "")
-            + (" · Forced" if track.forced else "")
-            + (" · Default" if track.default else ""),
-            color=theme.ACCENT if track.forced else theme.TEXT_MUTED, size=12,
-        ) for track in tracks]
+            children = [ft.Text(self.state.analysis_errors[key], color="#F28B82", size=12)]
+        elif tracks is None:
+            children = [ft.Text("En attente d'analyse", color=theme.TEXT_MUTED, size=12)]
+        elif not tracks:
+            children = [ft.Text("Aucune piste de sous-titres", color=theme.TEXT_MUTED, size=12)]
+        else:
+            children = [self._track_row(key, track) for track in tracks]
+        return ft.Container(
+            bgcolor=theme.SURFACE,
+            border=ft.Border.all(1, theme.BORDER),
+            border_radius=8,
+            content=ft.ExpansionTile(
+                title=ft.Row(controls=[
+                    ft.Icon(ft.Icons.MOVIE_ROUNDED, color=theme.ACCENT),
+                    ft.Text(media.name, color=theme.TEXT, weight=ft.FontWeight.W_600, expand=True),
+                    ft.Text(f"{len(tracks) if tracks is not None else '—'} piste(s)", color=theme.TEXT_MUTED),
+                    ft.IconButton(icon=ft.Icons.CLOSE_ROUNDED, tooltip="Retirer",
+                                  on_click=lambda _, p=str(media.path): self._remove(p)),
+                ]),
+                subtitle=ft.Text(str(media.path), color=theme.TEXT_MUTED, size=12, selectable=True),
+                controls=[ft.Container(padding=ft.Padding.symmetric(horizontal=16, vertical=8),
+                                       content=ft.Column(controls=children, spacing=5))],
+            ),
+        )
+
+    def _track_row(self, key, track):
+        label = (f"#{track.index}  ·  {track.language or 'Langue inconnue'}  ·  {track.codec}"
+                 + (f"  ·  {track.title}" if track.title else "")
+                 + ("  ·  FORCED" if track.forced else "")
+                 + ("  ·  DEFAULT" if track.default else ""))
+        return ft.Container(
+            bgcolor=theme.ACCENT_SOFT if track.forced else theme.SURFACE_ALT,
+            border_radius=6,
+            padding=ft.Padding.symmetric(horizontal=10, vertical=3),
+            content=ft.Checkbox(
+                label=label, value=(key, track.index) in self.state.selected_tracks,
+                active_color=theme.ACCENT,
+                on_change=lambda e, k=key, i=track.index: self._toggle_track(k, i, bool(e.control.value)),
+            ),
+        )
