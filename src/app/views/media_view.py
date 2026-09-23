@@ -4,6 +4,7 @@ import flet as ft
 
 from app.config import theme
 from app.state.media_state import MediaState
+from app.models.track_filter import TrackFilter
 from app.services.media_import_service import MediaImportService
 from app.services.ffprobe_service import FFprobeService, FFprobeError
 
@@ -16,6 +17,17 @@ class MediaView(ft.Container):
         self.file_list = ft.ListView(spacing=8, expand=True)
         self.count = ft.Text(color=theme.TEXT_MUTED)
         self.analyzing = False
+        self.language_filter = ft.Dropdown(label="Langue", width=190,
+            value=state.track_filter.language or "all", options=[], on_select=self._change_filter)
+        self.codec_filter = ft.Dropdown(label="Format", width=190,
+            value=state.track_filter.codec or "all", options=[], on_select=self._change_filter)
+        self.mode_filter = ft.Dropdown(label="Type", width=170, value=state.track_filter.mode,
+            options=[ft.DropdownOption(key="all", text="Tous"),
+                     ft.DropdownOption(key="forced", text="Forced"),
+                     ft.DropdownOption(key="full", text="Full (non Forced)")],
+            on_select=self._change_filter)
+        self.default_filter = ft.Checkbox(label="Default uniquement",
+            value=state.track_filter.default_only, on_change=self._change_filter)
         super().__init__(
             expand=True,
             padding=32,
@@ -34,6 +46,12 @@ class MediaView(ft.Container):
                     ft.Row(controls=[
                         ft.Button("Tout sélectionner", on_click=lambda _: self._select_all(True)),
                         ft.Button("Tout désélectionner", on_click=lambda _: self._select_all(False)),
+                    ]),
+                    ft.Row(wrap=True, controls=[
+                        self.language_filter, self.codec_filter, self.mode_filter,
+                        self.default_filter,
+                        ft.Button("Sélectionner les résultats", on_click=self._select_filtered),
+                        ft.Button("Effacer les filtres", on_click=self._reset_filter),
                     ]),
                     self.status,
                     self.count,
@@ -96,6 +114,7 @@ class MediaView(ft.Container):
                     if key in self.state.files:
                         self.state.set_tracks(key, [])
                         self.state.analysis_errors[key] = str(exc)
+                self._sync_filter_options()
                 self._render()
                 self.update()
             self.status.value = f"Analyse terminée : {len(files)} vidéo(s)."
@@ -115,6 +134,39 @@ class MediaView(ft.Container):
         self._render()
         self.update()
 
+    def _sync_filter_options(self):
+        tracks = [track for group in self.state.tracks.values() for track in group]
+        languages = sorted({track.language for track in tracks if track.language}, key=str.casefold)
+        codecs = sorted({track.codec for track in tracks}, key=str.casefold)
+        self.language_filter.options = [ft.DropdownOption(key="all", text="Toutes")] + [
+            ft.DropdownOption(key="français", text="Français")] + [
+            ft.DropdownOption(key=lang, text=lang) for lang in languages if lang.casefold() != "français"]
+        self.codec_filter.options = [ft.DropdownOption(key="all", text="Tous")] + [
+            ft.DropdownOption(key=codec, text=codec) for codec in codecs]
+
+    def _change_filter(self, _):
+        self.state.track_filter = TrackFilter(
+            language=None if self.language_filter.value == "all" else self.language_filter.value,
+            codec=None if self.codec_filter.value == "all" else self.codec_filter.value,
+            mode=self.mode_filter.value or "all",
+            default_only=bool(self.default_filter.value),
+        )
+        self._render()
+        self.update()
+
+    def _reset_filter(self, _):
+        self.language_filter.value = "all"
+        self.codec_filter.value = "all"
+        self.mode_filter.value = "all"
+        self.default_filter.value = False
+        self._change_filter(None)
+
+    def _select_filtered(self, _):
+        count = self.state.select_filtered()
+        self.status.value = f"{count} piste(s) correspondante(s) sélectionnée(s)."
+        self._render()
+        self.update()
+
     def _select_all(self, selected: bool):
         self.state.select_all(selected)
         self._render()
@@ -130,6 +182,7 @@ class MediaView(ft.Container):
                             f"{len(self.state.selected_tracks)} piste(s) sélectionnée(s)")
 
     def _render(self):
+        self._sync_filter_options()
         self._update_count()
         self.file_list.controls = [self._media_tile(media) for media in self.state.files.values()]
 
@@ -143,7 +196,9 @@ class MediaView(ft.Container):
         elif not tracks:
             children = [ft.Text("Aucune piste de sous-titres", color=theme.TEXT_MUTED, size=12)]
         else:
-            children = [self._track_row(key, track) for track in tracks]
+            visible = self.state.filtered_tracks(key)
+            children = ([self._track_row(key, track) for track in visible] if visible else
+                        [ft.Text("Aucune piste ne correspond aux filtres", color=theme.TEXT_MUTED, size=12)])
         return ft.Container(
             bgcolor=theme.SURFACE,
             border=ft.Border.all(1, theme.BORDER),

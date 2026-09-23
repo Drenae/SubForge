@@ -101,15 +101,15 @@ L'architecture pourra évoluer si les besoins réels du projet le justifient.
 
 ## Phase 5 — Filtres
 
-- [ ] Filtre par langue.
-- [ ] Filtre par codec/format.
-- [ ] Filtre Forced.
-- [ ] Filtre Full/non Forced.
-- [ ] Filtre Default.
-- [ ] Combinaison de plusieurs filtres.
-- [ ] Application des filtres à tous les médias chargés.
-- [ ] Sélection manuelle toujours possible après filtrage.
-- [ ] Premier cas d'usage prioritaire : **Français + Forced**.
+- [x] Filtre par langue.
+- [x] Filtre par codec/format.
+- [x] Filtre Forced.
+- [x] Filtre Full/non Forced.
+- [x] Filtre Default.
+- [x] Combinaison de plusieurs filtres.
+- [x] Application des filtres à tous les médias chargés.
+- [x] Sélection manuelle toujours possible après filtrage.
+- [x] Premier cas d'usage prioritaire : **Français + Forced**.
 
 ---
 

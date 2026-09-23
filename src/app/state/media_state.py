@@ -1,5 +1,6 @@
 from app.models.media_file import MediaFile
 from app.models.subtitle_track import SubtitleTrack
+from app.models.track_filter import TrackFilter
 from app.services.media_import_service import MediaImportService
 
 
@@ -9,6 +10,7 @@ class MediaState:
         self.tracks: dict[str, list[SubtitleTrack]] = {}
         self.analysis_errors: dict[str, str] = {}
         self.selected_tracks: set[tuple[str, int]] = set()
+        self.track_filter = TrackFilter()
 
     def add(self, paths: list[str]) -> tuple[int, list[str]]:
         added = 0
@@ -49,6 +51,15 @@ class MediaState:
         self.selected_tracks = ({(key, track.index)
                                  for key, tracks in self.tracks.items() if key in self.files
                                  for track in tracks} if selected else set())
+
+    def filtered_tracks(self, path: str) -> list[SubtitleTrack]:
+        return [track for track in self.tracks.get(path.casefold(), [])
+                if self.track_filter.matches(track)]
+
+    def select_filtered(self) -> int:
+        self.selected_tracks = {(key, track.index) for key in self.files
+                                for track in self.filtered_tracks(key)}
+        return len(self.selected_tracks)
 
     def remove(self, path: str) -> None:
         key = path.casefold()
