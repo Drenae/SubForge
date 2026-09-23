@@ -9,6 +9,7 @@ from app.config.settings import (
     WINDOW_MIN_WIDTH,
     WINDOW_WIDTH,
 )
+from app.state.media_state import MediaState
 from app.views.home_view import HomeView
 from app.views.media_view import MediaView
 from app.views.processing_view import ProcessingView
@@ -18,6 +19,7 @@ from app.views.settings_view import SettingsView
 class SubForgeApp:
     def __init__(self, page: ft.Page):
         self.page = page
+        self.media_state = MediaState()
         self.shell = AppShell(HomeView(), self.navigate)
 
     def run(self) -> None:
@@ -43,4 +45,4 @@ class SubForgeApp:
             "settings": SettingsView,
         }
         view = views.get(route, HomeView)
-        self.shell.set_content(view())
+        self.shell.set_content(view(self.media_state) if route == "media" else view())

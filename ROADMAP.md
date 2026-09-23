@@ -47,14 +47,14 @@ L'architecture pourra évoluer si les besoins réels du projet le justifient.
 
 ## Phase 2 — Import des médias
 
-- [ ] Sélection d'un fichier vidéo.
-- [ ] Sélection multiple.
+- [x] Sélection d'un fichier vidéo.
+- [x] Sélection multiple.
 - [ ] Drag & drop.
 - [ ] Import d'un dossier/saison.
-- [ ] Validation des fichiers pris en charge.
-- [ ] Liste des médias chargés.
-- [ ] Suppression individuelle ou globale de la sélection.
-- [ ] Gestion des fichiers invalides ou inaccessibles.
+- [x] Validation des fichiers pris en charge.
+- [x] Liste des médias chargés.
+- [x] Suppression individuelle ou globale de la sélection.
+- [x] Gestion des fichiers invalides ou inaccessibles.
 
 ---
 
