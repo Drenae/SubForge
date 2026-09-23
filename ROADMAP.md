@@ -60,9 +60,9 @@ L'architecture pourra évoluer si les besoins réels du projet le justifient.
 
 ## Phase 3 — Analyse avec FFprobe
 
-- [ ] Exécuter FFprobe sans bloquer l'interface.
-- [ ] Parser proprement sa sortie JSON.
-- [ ] Identifier toutes les pistes de sous-titres.
+- [x] Exécuter FFprobe sans bloquer l'interface.
+- [x] Parser proprement sa sortie JSON.
+- [x] Identifier toutes les pistes de sous-titres.
 - [ ] Récupérer pour chaque piste :
   - index ;
   - codec ;
@@ -77,8 +77,8 @@ L'architecture pourra évoluer si les besoins réels du projet le justifient.
   - ASS ;
   - SSA ;
   - VobSub.
-- [ ] Gérer les langues/tags absents ou incorrects.
-- [ ] Conserver les informations séparément pour chaque média.
+- [x] Gérer les langues/tags absents ou incorrects.
+- [x] Conserver les informations séparément pour chaque média.
 
 ---
 
