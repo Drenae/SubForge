@@ -115,17 +115,17 @@ L'architecture pourra évoluer si les besoins réels du projet le justifient.
 
 ## Phase 6 — Extraction
 
-- [ ] Extraction avec FFmpeg sans réencodage.
-- [ ] Extraction d'une ou plusieurs pistes.
-- [ ] Traitement de plusieurs médias.
-- [ ] Choix du dossier de destination.
-- [ ] Nommage automatique et lisible.
-- [ ] Prévention des écrasements accidentels.
+- [x] Extraction avec FFmpeg sans réencodage.
+- [x] Extraction d'une ou plusieurs pistes.
+- [x] Traitement de plusieurs médias.
+- [x] Choix du dossier de destination.
+- [x] Nommage automatique et lisible.
+- [x] Prévention des écrasements accidentels.
 - [ ] Progression par fichier et progression globale.
-- [ ] Possibilité d'annuler une opération.
-- [ ] Journal d'activité.
-- [ ] Rapport des réussites et erreurs.
-- [ ] Conserver le format original lors d'une simple extraction.
+- [x] Possibilité d'annuler une opération.
+- [x] Journal d'activité.
+- [x] Rapport des réussites et erreurs.
+- [x] Conserver le format original lors d'une simple extraction.
 
 Exemple de nomenclature :
 

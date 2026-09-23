@@ -20,6 +20,7 @@ class SubForgeApp:
     def __init__(self, page: ft.Page):
         self.page = page
         self.media_state = MediaState()
+        self.processing_view = ProcessingView(self.media_state)
         self.shell = AppShell(HomeView(), self.navigate)
 
     def run(self) -> None:
@@ -45,4 +46,5 @@ class SubForgeApp:
             "settings": SettingsView,
         }
         view = views.get(route, HomeView)
-        self.shell.set_content(view(self.media_state) if route == "media" else view())
+        self.shell.set_content(self.processing_view if route == "processing" else
+                               view(self.media_state) if route == "media" else view())
