@@ -50,7 +50,7 @@ L'architecture pourra évoluer si les besoins réels du projet le justifient.
 - [x] Sélection d'un fichier vidéo.
 - [x] Sélection multiple.
 - [ ] Drag & drop.
-- [ ] Import d'un dossier/saison.
+- [x] Import d'un dossier/saison.
 - [x] Validation des fichiers pris en charge.
 - [x] Liste des médias chargés.
 - [x] Suppression individuelle ou globale de la sélection.

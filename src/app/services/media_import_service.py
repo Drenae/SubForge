@@ -21,3 +21,22 @@ class MediaImportService:
         if size == 0:
             raise ValueError("Fichier vide")
         return MediaFile(path=candidate, size=size)
+
+    @staticmethod
+    def scan_folder(folder: str) -> tuple[list[str], list[str]]:
+        root = Path(folder).expanduser().resolve()
+        if not root.is_dir():
+            return [], [f"{folder}: Dossier introuvable ou inaccessible"]
+        paths = []
+        errors = []
+
+        def on_error(exc: OSError) -> None:
+            errors.append(f"{exc.filename or folder}: {exc.strerror or exc}")
+
+        import os
+        for current, _, filenames in os.walk(root, onerror=on_error):
+            for filename in filenames:
+                if Path(filename).suffix.lower() in SUPPORTED_EXTENSIONS:
+                    paths.append(str(Path(current) / filename))
+        paths.sort(key=str.casefold)
+        return paths, errors

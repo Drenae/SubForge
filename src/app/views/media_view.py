@@ -1,7 +1,10 @@
+import asyncio
+
 import flet as ft
 
 from app.config import theme
 from app.state.media_state import MediaState
+from app.services.media_import_service import MediaImportService
 
 
 class MediaView(ft.Container):
@@ -22,6 +25,7 @@ class MediaView(ft.Container):
                     ft.Text("Importez les vidéos dont vous souhaitez analyser les sous-titres.", color=theme.TEXT_MUTED),
                     ft.Row(controls=[
                         ft.Button("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),
+                        ft.Button("Importer un dossier", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._pick_folder),
                         ft.Button("Tout retirer", icon=ft.Icons.DELETE_OUTLINE_ROUNDED, on_click=self._clear),
                     ]),
                     self.status,
@@ -46,6 +50,22 @@ class MediaView(ft.Container):
         if missing:
             errors.append(f"{missing} fichier(s) sans chemin local accessible")
         self.status.value = f"{added} vidéo(s) ajoutée(s)." + ("\n" + "\n".join(errors) if errors else "")
+        self._render()
+        self.update()
+
+    async def _pick_folder(self, _):
+        folder = await self.picker.get_directory_path(dialog_title="Choisir un dossier de vidéos")
+        if not folder:
+            return
+        self.status.value = "Recherche des vidéos dans le dossier…"
+        self.update()
+        paths, errors = await asyncio.to_thread(MediaImportService.scan_folder, folder)
+        added, rejected = await asyncio.to_thread(self.state.add, paths)
+        errors.extend(rejected)
+        self.status.value = (
+            f"{added} vidéo(s) ajoutée(s) sur {len(paths)} trouvée(s)."
+            + ("\n" + "\n".join(errors) if errors else "")
+        )
         self._render()
         self.update()
 

@@ -13,3 +13,16 @@ def test_import_validates_deduplicates_and_removes(tmp_path):
     assert list(state.files.values())[0].name == "episode.MKV"
     state.remove(str(valid.resolve()))
     assert not state.files
+
+
+def test_scan_folder_recursively_selects_videos(tmp_path):
+    from app.services.media_import_service import MediaImportService
+
+    nested = tmp_path / "Saison 1"
+    nested.mkdir()
+    episode = nested / "episode.MKV"
+    episode.write_bytes(b"video")
+    (nested / "notes.txt").write_text("notes")
+    paths, errors = MediaImportService.scan_folder(str(tmp_path))
+    assert paths == [str(episode)]
+    assert not errors
