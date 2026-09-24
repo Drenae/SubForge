@@ -11,17 +11,17 @@ from app.config.settings import (
 )
 from app.state.media_state import MediaState
 from app.views.home_view import HomeView
-from app.views.media_view import MediaView
-from app.views.processing_view import ProcessingView
-from app.views.settings_view import SettingsView
+from app.views.extraction_view import ExtractionView
+from app.views.conversion_view import ConversionView
 
 
 class SubForgeApp:
     def __init__(self, page: ft.Page):
         self.page = page
         self.media_state = MediaState()
-        self.processing_view = ProcessingView(self.media_state)
-        self.shell = AppShell(HomeView(), self.navigate)
+        self.extraction_view = ExtractionView(self.media_state)
+        self.conversion_view = ConversionView(self.media_state)
+        self.shell = AppShell(HomeView(self.media_state), self.navigate)
 
     def run(self) -> None:
         self._configure_page()
@@ -39,14 +39,12 @@ class SubForgeApp:
         self.page.window.min_height = WINDOW_MIN_HEIGHT
 
     def navigate(self, route: str) -> None:
-        views = {
-            "home": HomeView,
-            "media": MediaView,
-            "processing": ProcessingView,
-            "settings": SettingsView,
-        }
-        view = views.get(route, HomeView)
-        if route == "processing":
-            self.processing_view.refresh_selection()
-        self.shell.set_content(self.processing_view if route == "processing" else
-                               view(self.media_state) if route == "media" else view())
+        if route == "extraction":
+            self.extraction_view.refresh_selection()
+            content = self.extraction_view
+        elif route == "conversion":
+            self.conversion_view.refresh_selection()
+            content = self.conversion_view
+        else:
+            content = HomeView(self.media_state)
+        self.shell.set_content(content)

@@ -33,10 +33,8 @@ class AppShell(ft.Row):
                         ),
                     ),
                     self._nav_button("Accueil", ft.Icons.HOME_ROUNDED, "home"),
-                    self._nav_button("Médias", ft.Icons.VIDEO_LIBRARY_ROUNDED, "media"),
-                    self._nav_button("Traitements", ft.Icons.AUTO_FIX_HIGH_ROUNDED, "processing"),
-                    ft.Container(expand=True),
-                    self._nav_button("Paramètres", ft.Icons.SETTINGS_ROUNDED, "settings"),
+                    self._nav_button("Extraction", ft.Icons.SAVE_ALT_ROUNDED, "extraction"),
+                    self._nav_button("Conversion", ft.Icons.AUTO_FIX_HIGH_ROUNDED, "conversion"),
                 ],
             ),
         )

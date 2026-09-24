@@ -82,8 +82,10 @@ Pendant le développement, `flet run` utilisera les exécutables embarqués si `
 
 L'OCR utilise RapidOCR et ONNX Runtime. Les modèles français et multilingues sont fournis avec les dépendances Python du projet : aucun Tesseract, paquet de langue ou téléchargement au lancement n'est nécessaire. Le modèle fonctionne automatiquement, sans réglage de langue.
 
-Dans **Traitements**, choisissez un `.sup`, lancez la reconnaissance et corrigez le SRT avant de l'enregistrer. Les résultats de faible confiance sont signalés. L'export UTF-8 refuse d'écraser un fichier existant.
+Dans **Conversion**, choisissez un `.sup`, lancez la reconnaissance et corrigez le SRT avant de l'enregistrer. Les résultats de faible confiance sont signalés. L'export UTF-8 refuse d'écraser un fichier existant.
 
 ### OCR de plusieurs épisodes
 
-Sélectionnez les pistes PGS voulues dans **Médias**, choisissez un dossier de sortie dans **Traitements**, puis cliquez sur **OCR des PGS sélectionnés**. SubForge extrait chaque piste dans un dossier temporaire, crée un SRT UTF-8 avec un nom unique et continue si une piste échoue. Le rapport indique les fichiers produits et le nombre de répliques dont la reconnaissance est incertaine. Relisez les SRT produits avant de les utiliser. Le bouton d'annulation arrête le lot après la piste en cours.
+Sélectionnez les pistes PGS voulues dans **Accueil**, choisissez un dossier de sortie dans **Conversion**, puis cliquez sur **Convertir les PGS sélectionnés en SRT**. SubForge extrait chaque piste dans un dossier temporaire, crée un SRT UTF-8 avec un nom unique et continue si une piste échoue. Le rapport indique les fichiers produits et le nombre de répliques dont la reconnaissance est incertaine. Relisez les SRT produits avant de les utiliser. Le bouton d'annulation arrête le lot après la piste en cours.
+
+La page **Extraction** enregistre séparément les pistes cochées dans **Accueil** dans leur format d'origine, sans OCR ni conversion.

@@ -4,6 +4,8 @@ SubForge est une application Windows développée avec Flet permettant d'analyse
 
 ## Objectif V1
 
+Navigation actuelle : **Accueil** (import, analyse, filtres et sélection des médias), **Extraction** (pistes dans leur format original), **Conversion** (OCR PGS vers SRT).
+
 La V1 doit permettre un workflow complet :
 
 **Importer des MKV → analyser les pistes → filtrer/sélectionner → extraire → OCR des sous-titres image → exporter en SRT.**

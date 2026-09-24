@@ -1,33 +1,29 @@
-import asyncio
 from pathlib import Path
 
 import flet as ft
 
 from app.config import theme
-from app.services.extraction_service import ExtractionJob, ExtractionService
+from app.services.extraction_service import ExtractionJob
 from app.services.ocr_service import OcrError, OcrService
 from app.services.ocr_batch_service import OcrBatchService
 from app.services.pgs_service import PgsError
 from app.state.media_state import MediaState
 
 
-class ProcessingView(ft.Container):
+class ConversionView(ft.Container):
     def __init__(self, state: MediaState):
         self.state = state
         self.picker = ft.FilePicker()
         self.destination: Path | None = None
-        self.running = False
         self.cancel_requested = False
-        self.output_label = ft.Text("Aucun dossier de destination choisi", color=theme.TEXT_MUTED)
-        self.summary = ft.Text(color=theme.TEXT_MUTED)
-        self.progress = ft.ProgressBar(value=0, color=theme.ACCENT)
-        self.file_progress = ft.ProgressBar(value=0, color=theme.ACCENT)
-        self.report = ft.ListView(expand=True, spacing=6)
         self.ocr_running = False
         self.batch_running = False
         self.ocr_source: Path | None = None
+        self.output_label = ft.Text("Aucun dossier de destination choisi", color=theme.TEXT_MUTED)
         self.ocr_status = ft.Text(color=theme.TEXT_MUTED)
         self.ocr_selection = ft.Text(color=theme.TEXT_MUTED)
+        self.progress = ft.ProgressBar(value=0, color=theme.ACCENT)
+        self.report = ft.ListView(expand=True, spacing=6)
         self.ocr_editor = ft.TextField(label="SRT reconnu (corrigez le texte avant l'enregistrement)",
                                        multiline=True, min_lines=8, max_lines=16, visible=False)
         self.ocr_save = ft.Button("Enregistrer le SRT corrigé", on_click=self._save_ocr, visible=False)
@@ -35,31 +31,27 @@ class ProcessingView(ft.Container):
             expand=True,
             padding=32,
             content=ft.Column(expand=True, spacing=16, controls=[
-                ft.Text("Traitements", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
-                ft.Text("Extraction des pistes sélectionnées dans leur format original.", color=theme.TEXT_MUTED),
-                ft.Row(wrap=True, controls=[
-                    ft.Button("Choisir le dossier de sortie", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._choose_folder),
-                    ft.Button("Extraire", icon=ft.Icons.SAVE_ALT_ROUNDED, on_click=self._extract),
-                    ft.Button("Annuler après la piste en cours", on_click=self._cancel),
-                ]),
-                self.output_label, self.summary, self.progress, self.file_progress, self.report,
-                ft.Text("OCR PGS → SRT", size=18, color=theme.TEXT),
-                ft.Text("OCR multilingue intégré · aucun moteur externe requis", color=theme.TEXT_MUTED),
+                ft.Text("Conversion", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
+                ft.Text("Convertissez des sous-titres PGS en SRT avec l'OCR intégré.", color=theme.TEXT_MUTED),
                 ft.Text("Fichier .sup isolé : choisissez le fichier, vérifiez le texte reconnu, puis enregistrez le SRT corrigé.",
                         color=theme.TEXT_MUTED),
                 ft.Row(wrap=True, controls=[
                     ft.Button("Choisir un .sup et lancer l'OCR", on_click=self._run_ocr),
-                    self.ocr_save]),
-                ft.Text("Pistes sélectionnées dans Médias : choisissez un dossier de sortie ci-dessus, puis lancez l'OCR. "
-                        "Chaque piste PGS est extraite temporairement et convertie directement en fichier .srt "
-                        "dans ce dossier. Le bouton Extraire n'est pas nécessaire ; relisez ensuite les SRT produits.",
+                    self.ocr_save,
+                ]),
+                ft.Text("Pistes sélectionnées dans Accueil : le traitement extrait temporairement chaque PGS "
+                        "et enregistre directement son SRT dans le dossier choisi. Relisez ensuite les SRT produits.",
                         color=theme.TEXT_MUTED),
                 self.ocr_selection,
-                ft.Button("Extraire et convertir les PGS sélectionnés en SRT", on_click=self._run_ocr_batch),
-                self.ocr_status, self.ocr_editor,
+                ft.Row(wrap=True, controls=[
+                    ft.Button("Choisir le dossier de sortie", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._choose_folder),
+                    ft.Button("Convertir les PGS sélectionnés en SRT", on_click=self._run_ocr_batch),
+                    ft.Button("Annuler après la piste en cours", on_click=self._cancel),
+                ]),
+                self.output_label, self.progress, self.ocr_status, self.report, self.ocr_editor,
             ]),
         )
-        self._refresh_summary()
+        self.refresh_selection()
 
     def _safe_update(self):
         if self.page is not None:
@@ -69,75 +61,27 @@ class ProcessingView(ft.Container):
         return [ExtractionJob(media.path, track)
                 for key, media in self.state.files.items()
                 for track in self.state.tracks.get(key, [])
-                if (key, track.index) in self.state.selected_tracks]
-
-    def _refresh_summary(self):
-        self.summary.value = f"{len(self._jobs())} piste(s) sélectionnée(s) pour extraction"
-        count = sum(job.track.codec.casefold() == "hdmv_pgs_subtitle" for job in self._jobs())
-        self.ocr_selection.value = f"{count} piste(s) PGS sélectionnée(s) pour l'OCR"
+                if (key, track.index) in self.state.selected_tracks
+                and track.codec.casefold() == "hdmv_pgs_subtitle"]
 
     def refresh_selection(self):
-        self._refresh_summary()
+        self.ocr_selection.value = f"{len(self._jobs())} piste(s) PGS sélectionnée(s) pour l'OCR"
 
     async def _choose_folder(self, _):
-        path = await self.picker.get_directory_path(dialog_title="Choisir le dossier de sortie")
+        path = await self.picker.get_directory_path(dialog_title="Choisir le dossier de sortie des SRT")
         if path:
             self.destination = Path(path)
             self.output_label.value = str(self.destination)
             self._safe_update()
 
     def _cancel(self, _):
-        if self.running or self.batch_running:
+        if self.batch_running:
             self.cancel_requested = True
-            self.summary.value = "Arrêt demandé après la piste en cours…"
-            self._safe_update()
-
-    async def _extract(self, _):
-        if self.running or self.batch_running or self.ocr_running:
-            return
-        jobs = self._jobs()
-        if not jobs or self.destination is None:
-            self.summary.value = "Sélectionnez des pistes dans Médias et un dossier de sortie."
-            self._safe_update()
-            return
-        self.running = True
-        self.cancel_requested = False
-        self.report.controls = []
-        self.progress.value = 0
-        self.file_progress.value = 0
-        self._safe_update()
-
-        def on_progress(done, total, result):
-            self.progress.value = done / total
-            self.file_progress.value = 1
-            description = f"{result.job.source.name} · piste #{result.job.track.index}"
-            if result.error:
-                self.report.controls.append(ft.Text(f"Erreur : {description} — {result.error}", color="#F28B82", selectable=True))
-            else:
-                self.report.controls.append(ft.Text(f"✓ {description} → {result.output.name}", color=theme.TEXT, selectable=True))
-            self.summary.value = f"{done}/{total} piste(s) traitée(s)"
-            self._safe_update()
-
-        def on_partial(done, total, fraction):
-            self.file_progress.value = fraction
-            self.progress.value = (done + fraction) / total if fraction is not None else done / total
-            self.summary.value = f"{done}/{total} piste(s) terminée(s) · piste en cours"
-            self._safe_update()
-
-        try:
-            results = await ExtractionService.run_batch(
-                jobs, self.destination, lambda: self.cancel_requested, on_progress, on_partial,
-            )
-            succeeded = sum(result.output is not None for result in results)
-            failed = len(results) - succeeded
-            remaining = len(jobs) - len(results)
-            self.summary.value = f"Terminé : {succeeded} réussie(s), {failed} erreur(s), {remaining} non traitée(s)."
-        finally:
-            self.running = False
+            self.ocr_status.value = "Arrêt demandé après la piste en cours…"
             self._safe_update()
 
     async def _run_ocr(self, _):
-        if self.ocr_running or self.running or self.batch_running:
+        if self.ocr_running or self.batch_running:
             return
         selected = await self.picker.pick_files(
             allow_multiple=False, file_type=ft.FilePickerFileType.CUSTOM, allowed_extensions=["sup"])
@@ -193,18 +137,17 @@ class ProcessingView(ft.Container):
         self._safe_update()
 
     async def _run_ocr_batch(self, _):
-        if self.batch_running or self.running or self.ocr_running:
+        if self.batch_running or self.ocr_running:
             return
         jobs = [job for job in self._jobs() if job.track.codec.casefold() == "hdmv_pgs_subtitle"]
         if not jobs or self.destination is None:
-            self.ocr_status.value = "Sélectionnez des pistes PGS dans Médias et un dossier de sortie."
+            self.ocr_status.value = "Sélectionnez des pistes PGS dans Accueil et un dossier de sortie."
             self._safe_update()
             return
         self.batch_running = True
         self.cancel_requested = False
         self.report.controls = []
         self.progress.value = 0
-        self.file_progress.value = None
         self.ocr_status.value = f"OCR par lot : 0/{len(jobs)} piste(s) terminée(s)."
         self._safe_update()
 
