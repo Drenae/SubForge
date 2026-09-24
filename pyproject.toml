@@ -10,6 +10,7 @@ authors = [
 dependencies = [
     "flet==1.0.1",
     "Pillow>=10,<13",
+    "numpy>=1.24,<3",
     "rapidocr==3.9.2",
     "onnxruntime>=1.17,<2"
 ]

@@ -70,6 +70,8 @@ For more details on building Web app, refer to the [Web Packaging Guide](https:/
 
 ## Application Windows autonome
 
+Après un `git pull`, l'environnement de développement existant ne se met pas à jour automatiquement. Pour lancer le code source, exécutez une fois `\.venv\Scripts\python.exe -m pip install -e .` depuis `E:\SubForge`, puis `flet run`. Cette commande installe les bibliothèques Python nécessaires dans le `.venv` du projet ; elle ne demande pas d'installer Tesseract ou un autre logiciel à part.
+
 Le build Windows intègre l’OCR, ses modèles, FFmpeg et FFprobe. Aucun de ces logiciels ne doit être installé séparément sur le PC qui utilisera l’application.
 
 Pour préparer les exécutables FFmpeg dans le projet puis construire l’application, lancer `scripts\build_windows.ps1` depuis PowerShell. Le script télécharge une archive FFmpeg pour Windows **au moment du build**, vérifie sa somme SHA-256 et place `ffmpeg.exe` et `ffprobe.exe` dans les ressources embarquées. Aucun téléchargement n’est effectué par l’application distribuée. Voir [la page du fournisseur des builds FFmpeg](https://www.gyan.dev/ffmpeg/builds/) pour la licence et le code source correspondant.
@@ -85,4 +87,3 @@ Dans **Traitements**, choisissez un `.sup`, lancez la reconnaissance et corrigez
 ### OCR de plusieurs épisodes
 
 Sélectionnez les pistes PGS voulues dans **Médias**, choisissez un dossier de sortie dans **Traitements**, puis cliquez sur **OCR des PGS sélectionnés**. SubForge extrait chaque piste dans un dossier temporaire, crée un SRT UTF-8 avec un nom unique et continue si une piste échoue. Le rapport indique les fichiers produits et le nombre de répliques dont la reconnaissance est incertaine. Relisez les SRT produits avant de les utiliser. Le bouton d'annulation arrête le lot après la piste en cours.
-
