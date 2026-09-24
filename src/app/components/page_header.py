@@ -9,7 +9,8 @@ class PageHeader(ft.Container):
     def __init__(self, title: str, description: str, action: ft.Control | None = None):
         super().__init__(
             border=ft.Border(bottom=ft.BorderSide(1, theme.BORDER)),
-            padding=ft.Padding.only(bottom=14),
+            padding=ft.Padding.symmetric(horizontal=24, vertical=18),
+            bgcolor=theme.SURFACE,
             content=ft.Row(
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
