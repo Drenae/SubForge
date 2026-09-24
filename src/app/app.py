@@ -46,5 +46,7 @@ class SubForgeApp:
             "settings": SettingsView,
         }
         view = views.get(route, HomeView)
+        if route == "processing":
+            self.processing_view.refresh_selection()
         self.shell.set_content(self.processing_view if route == "processing" else
                                view(self.media_state) if route == "media" else view())

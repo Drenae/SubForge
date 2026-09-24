@@ -27,6 +27,7 @@ class ProcessingView(ft.Container):
         self.batch_running = False
         self.ocr_source: Path | None = None
         self.ocr_status = ft.Text(color=theme.TEXT_MUTED)
+        self.ocr_selection = ft.Text(color=theme.TEXT_MUTED)
         self.ocr_editor = ft.TextField(label="SRT reconnu (corrigez le texte avant l'enregistrement)",
                                        multiline=True, min_lines=8, max_lines=16, visible=False)
         self.ocr_save = ft.Button("Enregistrer le SRT corrigé", on_click=self._save_ocr, visible=False)
@@ -44,10 +45,17 @@ class ProcessingView(ft.Container):
                 self.output_label, self.summary, self.progress, self.file_progress, self.report,
                 ft.Text("OCR PGS → SRT", size=18, color=theme.TEXT),
                 ft.Text("OCR multilingue intégré · aucun moteur externe requis", color=theme.TEXT_MUTED),
+                ft.Text("Fichier .sup isolé : choisissez le fichier, vérifiez le texte reconnu, puis enregistrez le SRT corrigé.",
+                        color=theme.TEXT_MUTED),
                 ft.Row(wrap=True, controls=[
                     ft.Button("Choisir un .sup et lancer l'OCR", on_click=self._run_ocr),
-                    ft.Button("OCR des PGS sélectionnés", on_click=self._run_ocr_batch),
                     self.ocr_save]),
+                ft.Text("Pistes sélectionnées dans Médias : choisissez un dossier de sortie ci-dessus, puis lancez l'OCR. "
+                        "Chaque piste PGS est extraite temporairement et convertie directement en fichier .srt "
+                        "dans ce dossier. Le bouton Extraire n'est pas nécessaire ; relisez ensuite les SRT produits.",
+                        color=theme.TEXT_MUTED),
+                self.ocr_selection,
+                ft.Button("Extraire et convertir les PGS sélectionnés en SRT", on_click=self._run_ocr_batch),
                 self.ocr_status, self.ocr_editor,
             ]),
         )
@@ -65,6 +73,11 @@ class ProcessingView(ft.Container):
 
     def _refresh_summary(self):
         self.summary.value = f"{len(self._jobs())} piste(s) sélectionnée(s) pour extraction"
+        count = sum(job.track.codec.casefold() == "hdmv_pgs_subtitle" for job in self._jobs())
+        self.ocr_selection.value = f"{count} piste(s) PGS sélectionnée(s) pour l'OCR"
+
+    def refresh_selection(self):
+        self._refresh_summary()
 
     async def _choose_folder(self, _):
         path = await self.picker.get_directory_path(dialog_title="Choisir le dossier de sortie")
