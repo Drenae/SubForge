@@ -73,3 +73,7 @@ For more details on building Web app, refer to the [Web Packaging Guide](https:/
 L'OCR requiert [Tesseract OCR](https://tesseract-ocr.github.io/tessdoc/Installation.html), installé séparément et accessible dans le `PATH` Windows. Installez aussi les données de langue souhaitées, notamment `fra` pour le français ; vérifiez avec `tesseract --list-langs` dans PowerShell. SubForge utilise FFmpeg pour extraire les pistes PGS en `.sup` avant l'OCR ; Tesseract ne dépend pas de Subtitle Edit.
 
 Dans **Traitements**, choisissez un `.sup`, la langue OCR, puis lancez la reconnaissance. Relisez et corrigez le SRT affiché avant de l'enregistrer. Une confiance faible ou un texte vide est signalé dans le résumé. L'export refuse de remplacer un fichier existant.
+
+### OCR de plusieurs épisodes
+
+Sélectionnez les pistes PGS voulues dans **Médias**, choisissez un dossier de sortie et une langue OCR dans **Traitements**, puis cliquez sur **OCR des PGS sélectionnés**. SubForge extrait chaque piste dans un dossier temporaire, crée un SRT UTF-8 avec un nom unique et continue si une piste échoue. Le rapport indique les fichiers produits et le nombre de répliques dont la reconnaissance est incertaine. Relisez les SRT produits avant de les utiliser. Le bouton d'annulation arrête le lot après la piste en cours.

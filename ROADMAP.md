@@ -152,7 +152,7 @@ Objectif principal : convertir les sous-titres basés sur des images en texte.
 - [x] Prévisualiser le texte reconnu.
 - [x] Permettre la correction avant export.
 - [x] Export UTF-8 en SRT.
-- [ ] Traitement OCR par lot.
+- [x] Traitement OCR par lot.
 
 ---
 

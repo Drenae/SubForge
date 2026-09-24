@@ -6,6 +6,7 @@ import flet as ft
 from app.config import theme
 from app.services.extraction_service import ExtractionJob, ExtractionService
 from app.services.ocr_service import OcrError, OcrService
+from app.services.ocr_batch_service import OcrBatchService
 from app.services.pgs_service import PgsError
 from app.state.media_state import MediaState
 
@@ -23,6 +24,7 @@ class ProcessingView(ft.Container):
         self.file_progress = ft.ProgressBar(value=0, color=theme.ACCENT)
         self.report = ft.ListView(expand=True, spacing=6)
         self.ocr_running = False
+        self.batch_running = False
         self.ocr_source: Path | None = None
         self.ocr_language = ft.Dropdown(label="Langue OCR", value="fra", width=150,
             options=[ft.DropdownOption(key=code, text=label) for code, label in
@@ -46,6 +48,7 @@ class ProcessingView(ft.Container):
                 ft.Text("OCR PGS → SRT", size=18, color=theme.TEXT),
                 ft.Row(wrap=True, controls=[self.ocr_language,
                     ft.Button("Choisir un .sup et lancer l'OCR", on_click=self._run_ocr),
+                    ft.Button("OCR des PGS sélectionnés", on_click=self._run_ocr_batch),
                     self.ocr_save]),
                 self.ocr_status, self.ocr_editor,
             ]),
@@ -73,13 +76,13 @@ class ProcessingView(ft.Container):
             self._safe_update()
 
     def _cancel(self, _):
-        if self.running:
+        if self.running or self.batch_running:
             self.cancel_requested = True
             self.summary.value = "Arrêt demandé après la piste en cours…"
             self._safe_update()
 
     async def _extract(self, _):
-        if self.running:
+        if self.running or self.batch_running or self.ocr_running:
             return
         jobs = self._jobs()
         if not jobs or self.destination is None:
@@ -123,7 +126,7 @@ class ProcessingView(ft.Container):
             self._safe_update()
 
     async def _run_ocr(self, _):
-        if self.ocr_running:
+        if self.ocr_running or self.running or self.batch_running:
             return
         selected = await self.picker.pick_files(
             allow_multiple=False, file_type=ft.FilePickerFileType.CUSTOM, allowed_extensions=["sup"])
@@ -177,3 +180,50 @@ class ProcessingView(ft.Container):
         except OSError as exc:
             self.ocr_status.value = f"Enregistrement impossible : {exc}"
         self._safe_update()
+
+    async def _run_ocr_batch(self, _):
+        if self.batch_running or self.running or self.ocr_running:
+            return
+        jobs = [job for job in self._jobs() if job.track.codec.casefold() == "hdmv_pgs_subtitle"]
+        if not jobs or self.destination is None:
+            self.ocr_status.value = "Sélectionnez des pistes PGS dans Médias et un dossier de sortie."
+            self._safe_update()
+            return
+        self.batch_running = True
+        self.cancel_requested = False
+        self.report.controls = []
+        self.progress.value = 0
+        self.file_progress.value = None
+        self.ocr_status.value = f"OCR par lot : 0/{len(jobs)} piste(s) terminée(s)."
+        self._safe_update()
+
+        def on_progress(done, total, count, result):
+            if result is None:
+                self.ocr_status.value = f"OCR {done + 1}/{total} · {count} sous-titre(s) reconnus."
+            else:
+                description = f"{result.job.source.name} · piste #{result.job.track.index}"
+                if result.error:
+                    self.report.controls.append(ft.Text(
+                        f"Erreur OCR : {description} — {result.error}", color="#F28B82", selectable=True))
+                else:
+                    self.report.controls.append(ft.Text(
+                        f"✓ {description} → {result.output.name} · {result.uncertain} à vérifier",
+                        color=theme.TEXT, selectable=True))
+                self.progress.value = done / total
+                self.ocr_status.value = f"OCR par lot : {done}/{total} piste(s) terminée(s)."
+            self._safe_update()
+
+        try:
+            results = await OcrBatchService.run(
+                jobs, self.destination, self.ocr_language.value or "fra",
+                lambda: self.cancel_requested, on_progress,
+            )
+            succeeded = sum(result.output is not None for result in results)
+            uncertain = sum(result.uncertain for result in results)
+            self.ocr_status.value = (
+                f"OCR terminé : {succeeded} SRT créés, {len(results) - succeeded} erreur(s), "
+                f"{len(jobs) - len(results)} non traitée(s) · {uncertain} sous-titre(s) à vérifier."
+            )
+        finally:
+            self.batch_running = False
+            self._safe_update()
