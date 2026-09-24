@@ -24,7 +24,7 @@ class AppShell(ft.Row):
                 ft.Container(
                     padding=ft.Padding.only(left=10, bottom=20),
                     content=ft.Row(spacing=10, controls=[
-                        ft.Icon(ft.Icons.SUBTITLES_ROUNDED, color=theme.ACCENT, size=28),
+                        ft.Icon(ft.Icons.SUBTITLES_ROUNDED, color=ft.Colors.BLUE_300, size=28),
                         ft.Text(APP_NAME, size=22, weight=ft.FontWeight.BOLD, color=theme.TEXT),
                     ]),
                 ),
@@ -39,12 +39,16 @@ class AppShell(ft.Row):
     def _nav_button(self, label: str, icon: str, route: str) -> ft.Button:
         return ft.Button(
             content=ft.Row(controls=[
-                ft.Icon(icon, size=20, color=theme.TEXT_MUTED),
-                ft.Text(label, color=theme.TEXT),
+                ft.Icon(icon, size=20, color=ft.Colors.BLACK),
+                ft.Text(label, color=ft.Colors.BLACK),
             ]),
             style=ft.ButtonStyle(
                 padding=ft.Padding.symmetric(horizontal=12, vertical=14),
-                shape=ft.RoundedRectangleBorder(radius=8),
+                shape=ft.RoundedRectangleBorder(radius=6),
+                bgcolor={
+                    ft.ControlState.DEFAULT: ft.Colors.BLUE_300,
+                    ft.ControlState.HOVERED: ft.Colors.BLUE_600,
+                }
             ),
             on_click=lambda _: self._on_navigate(route),
         )
