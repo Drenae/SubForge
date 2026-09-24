@@ -3,6 +3,7 @@ from pathlib import Path
 import flet as ft
 
 from app.config import theme
+from app.components.page_header import PageHeader
 from app.services.extraction_service import ExtractionJob
 from app.services.ocr_service import OcrError, OcrService
 from app.services.ocr_batch_service import OcrBatchService
@@ -31,8 +32,7 @@ class ConversionView(ft.Container):
             expand=True,
             padding=32,
             content=ft.Column(expand=True, spacing=16, controls=[
-                ft.Text("Conversion", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
-                ft.Text("Convertissez des sous-titres PGS en SRT avec l'OCR intégré.", color=theme.TEXT_MUTED),
+                PageHeader("Conversion", "Convertissez des sous-titres PGS en SRT avec l'OCR intégré."),
                 ft.Text("Fichier .sup isolé : choisissez le fichier, vérifiez le texte reconnu, puis enregistrez le SRT corrigé.",
                         color=theme.TEXT_MUTED),
                 ft.Row(wrap=True, controls=[

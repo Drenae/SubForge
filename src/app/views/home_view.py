@@ -3,6 +3,7 @@ import asyncio
 import flet as ft
 
 from app.config import theme
+from app.components.page_header import PageHeader
 from app.state.media_state import MediaState
 from app.models.track_filter import TrackFilter
 from app.services.media_import_service import MediaImportService
@@ -16,6 +17,7 @@ class HomeView(ft.Container):
         self.status = ft.Text(color=theme.TEXT_MUTED, selectable=True)
         self.file_list = ft.ListView(spacing=6, expand=True)
         self.count = ft.Text(color=theme.TEXT_MUTED)
+        self.select_all_checkbox = ft.Checkbox(label="Tout sélectionner", on_change=self._toggle_all)
         self.analyzing = False
         self.language_filter = ft.Dropdown(label="Langue", width=190,
             value=state.track_filter.language or "all", options=[], on_select=self._change_filter)
@@ -35,25 +37,27 @@ class HomeView(ft.Container):
                 expand=True,
                 spacing=8,
                 controls=[
-                    ft.Row(wrap=True, spacing=14, controls=[
-                        ft.Text("Accueil", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
-                        ft.Text("Importez et sélectionnez les sous-titres à traiter.", color=theme.TEXT_MUTED),
+                    PageHeader("Accueil", "Importez et sélectionnez les sous-titres à traiter.",
+                               ft.Button("Analyser", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze)),
+                    ft.Row(vertical_alignment=ft.CrossAxisAlignment.START, spacing=20, controls=[
+                        ft.Row(width=375, spacing=8, controls=[
+                            ft.Button("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),
+                            ft.Button("Importer un dossier", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._pick_folder),
+                        ]),
+                        ft.Row(expand=True, wrap=True, spacing=8, run_spacing=4, controls=[
+                            self.language_filter, self.codec_filter, self.mode_filter,
+                            self.default_filter,
+                            ft.Button("Sélectionner les résultats", on_click=self._select_filtered),
+                            ft.Button("Effacer les filtres", on_click=self._reset_filter),
+                        ]),
                     ]),
-                    ft.Row(wrap=True, spacing=8, run_spacing=6, controls=[
-                        ft.Button("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),
-                        ft.Button("Importer un dossier", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._pick_folder),
-                        ft.Button("Analyser les pistes", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze),
-                        ft.Button("Tout sélectionner", on_click=lambda _: self._select_all(True)),
-                        ft.Button("Tout désélectionner", on_click=lambda _: self._select_all(False)),
+                    ft.Row(spacing=12, vertical_alignment=ft.CrossAxisAlignment.CENTER, controls=[
+                        self.count,
+                        ft.Container(expand=True),
+                        self.select_all_checkbox,
                         ft.Button("Tout retirer", icon=ft.Icons.DELETE_OUTLINE_ROUNDED, on_click=self._clear),
                     ]),
-                    ft.Row(wrap=True, spacing=8, run_spacing=6, controls=[
-                        self.language_filter, self.codec_filter, self.mode_filter,
-                        self.default_filter,
-                        ft.Button("Sélectionner les résultats", on_click=self._select_filtered),
-                        ft.Button("Effacer les filtres", on_click=self._reset_filter),
-                    ]),
-                    ft.Row(wrap=True, spacing=12, controls=[self.count, self.status]),
+                    self.status,
                     self.file_list,
                 ],
             ),
@@ -171,14 +175,22 @@ class HomeView(ft.Container):
         self._render()
         self.update()
 
+    def _toggle_all(self, event):
+        self._select_all(bool(event.control.value))
+
     def _toggle_track(self, key: str, index: int, selected: bool):
         self.state.select_track(key, index, selected)
         self._update_count()
         self.count.update()
+        self.select_all_checkbox.update()
 
     def _update_count(self):
         self.count.value = (f"{len(self.state.files)} vidéo(s) chargée(s) · "
                             f"{len(self.state.selected_tracks)} piste(s) sélectionnée(s)")
+        total = sum(len(tracks) for tracks in self.state.tracks.values())
+        self.select_all_checkbox.value = bool(total and len(self.state.selected_tracks) == total)
+        self.select_all_checkbox.label = ("Tout désélectionner" if self.select_all_checkbox.value
+                                          else "Tout sélectionner")
 
     def _render(self):
         self._sync_filter_options()
