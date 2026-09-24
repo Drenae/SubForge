@@ -32,7 +32,6 @@ class HomeView(ft.Container):
             value=state.track_filter.default_only, on_change=self._change_filter)
         super().__init__(
             expand=True,
-            padding=ft.Padding.symmetric(horizontal=24, vertical=18),
             content=ft.Column(
                 expand=True,
                 spacing=8,
