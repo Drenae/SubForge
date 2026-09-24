@@ -1,6 +1,5 @@
 import asyncio
 import re
-import shutil
 import subprocess
 import uuid
 from dataclasses import dataclass
@@ -9,6 +8,7 @@ from typing import Callable
 
 from app.models.subtitle_track import SubtitleTrack
 from app.services.logging_service import LoggingService
+from app.services.tool_detection_service import ToolDetectionService
 
 
 # Matroska subtitle-only container keeps VobSub/SSA packets without conversion.
@@ -64,7 +64,7 @@ class ExtractionService:
 
     @staticmethod
     async def _duration(source: Path) -> float | None:
-        executable = shutil.which("ffprobe")
+        executable = ToolDetectionService.resolve_executable("ffprobe")
         if not executable:
             return None
         try:
@@ -94,7 +94,7 @@ class ExtractionService:
     @classmethod
     async def extract(cls, job: ExtractionJob, destination: Path,
                       on_partial: Callable[[float | None], None] | None = None) -> Path:
-        executable = shutil.which("ffmpeg")
+        executable = ToolDetectionService.resolve_executable("ffmpeg")
         if not executable:
             raise RuntimeError("FFmpeg est introuvable. Vérifiez les Paramètres.")
         fmt = CODEC_OUTPUT.get(job.track.codec.casefold())

@@ -1,16 +1,12 @@
 import asyncio
-import csv
-import io
-import subprocess
-import tempfile
 from pathlib import Path
 from typing import Callable
 
+import numpy as np
 from PIL import Image, ImageOps
 
 from app.models.ocr_cue import OcrCue
 from app.services.pgs_service import PgsService
-from app.services.tool_detection_service import ToolDetectionService
 
 
 class OcrError(RuntimeError):
@@ -18,85 +14,86 @@ class OcrError(RuntimeError):
 
 
 class OcrService:
+    _engine = None
+
     @staticmethod
-    async def languages() -> list[str]:
-        executable = ToolDetectionService.resolve_executable("tesseract")
-        if not executable:
+    def _lines(image: Image.Image) -> list[Image.Image]:
+        alpha = np.asarray(image.getchannel("A")) > 12
+        active = np.flatnonzero(alpha.any(axis=1))
+        if not len(active):
             return []
-        process = await asyncio.create_subprocess_exec(
-            executable, "--list-langs", stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.STDOUT,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-        output, _ = await process.communicate()
-        return [line.strip() for line in output.decode("utf-8", errors="replace").splitlines()
-                if line.strip() and not line.startswith("List of available languages")]
+        spans = []
+        start = previous = int(active[0])
+        for row in active[1:]:
+            row = int(row)
+            if row - previous >= 9:
+                spans.append((start, previous + 1))
+                start = row
+            previous = row
+        spans.append((start, previous + 1))
+        lines = []
+        for top, bottom in spans:
+            columns = np.flatnonzero(alpha[top:bottom].any(axis=0))
+            if len(columns):
+                left, right = int(columns[0]), int(columns[-1]) + 1
+                lines.append(image.crop((max(0, left - 3), max(0, top - 3),
+                                         min(image.width, right + 3), min(image.height, bottom + 3))))
+        return lines
 
     @staticmethod
-    def parse_tsv(payload: str) -> tuple[str, float | None]:
-        lines: dict[tuple[str, str, str], list[str]] = {}
-        confidence = []
-        for row in csv.DictReader(io.StringIO(payload), delimiter="\t"):
-            word = (row.get("text") or "").strip()
-            if not word:
-                continue
-            key = (row.get("block_num", ""), row.get("par_num", ""), row.get("line_num", ""))
-            lines.setdefault(key, []).append(word)
-            try:
-                value = float(row.get("conf", "-1"))
-                if value >= 0:
-                    confidence.append(value)
-            except ValueError:
-                pass
-        return "\n".join(" ".join(words) for words in lines.values()), (
-            sum(confidence) / len(confidence) if confidence else None)
-
-    @staticmethod
-    def _prepare(image: Image.Image, path: Path) -> None:
+    def _prepare(image: Image.Image) -> np.ndarray:
         base = Image.new("RGBA", image.size, "white")
         base.alpha_composite(image)
         gray = ImageOps.autocontrast(ImageOps.grayscale(base.convert("RGB")))
-        gray.resize((gray.width * 2, gray.height * 2), Image.Resampling.LANCZOS).save(path)
+        enlarged = gray.resize((gray.width * 2, gray.height * 2), Image.Resampling.LANCZOS)
+        return np.asarray(enlarged.convert("RGB"))
 
     @classmethod
-    async def recognize(cls, image: Image.Image, language: str) -> tuple[str, float | None]:
-        executable = ToolDetectionService.resolve_executable("tesseract")
-        if not executable:
-            raise OcrError("Tesseract est introuvable. Installez-le avec la langue souhaitée, puis redémarrez SubForge.")
-        with tempfile.TemporaryDirectory(prefix="subforge-ocr-") as folder:
-            path = Path(folder) / "cue.png"
-            await asyncio.to_thread(cls._prepare, image, path)
-            process = await asyncio.create_subprocess_exec(
-                executable, str(path), "stdout", "-l", language, "--psm", "6", "tsv",
-                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-            )
-            try:
-                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=60)
-            except asyncio.TimeoutError as exc:
-                process.kill()
-                await process.communicate()
-                raise OcrError("Délai OCR dépassé") from exc
-            if process.returncode != 0:
-                raise OcrError(stderr.decode("utf-8", errors="replace").strip() or "Tesseract a échoué")
-            return cls.parse_tsv(stdout.decode("utf-8", errors="replace"))
+    def _recognize_sync(cls, image: Image.Image) -> tuple[str, float | None]:
+        try:
+            import rapidocr
+            from rapidocr import RapidOCR
+
+            if cls._engine is None:
+                model_dir = Path(rapidocr.__file__).resolve().parent / "models"
+                models = {
+                    "Det.model_path": model_dir / "PP-OCRv6_det_small.onnx",
+                    "Cls.model_path": model_dir / "ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+                    "Rec.model_path": model_dir / "PP-OCRv6_rec_small.onnx",
+                }
+                missing = [path.name for path in models.values() if not path.is_file()]
+                if missing:
+                    raise OcrError(f"Modèles OCR absents du paquet : {', '.join(missing)}")
+                cls._engine = RapidOCR(params={
+                    "Global.use_det": False,
+                    "Global.use_cls": False,
+                    **{key: str(path) for key, path in models.items()},
+                })
+            texts = []
+            scores = []
+            for line in cls._lines(image):
+                result = cls._engine(cls._prepare(line))
+                if result.txts:
+                    texts.append(" ".join(result.txts))
+                if result.scores:
+                    scores.extend(result.scores)
+        except Exception as exc:
+            raise OcrError(f"Moteur OCR intégré indisponible : {exc}") from exc
+        return "\n".join(texts), (sum(scores) / len(scores) * 100 if scores else None)
 
     @classmethod
-    async def convert(cls, source: Path, language: str,
+    async def recognize(cls, image: Image.Image) -> tuple[str, float | None]:
+        return await asyncio.to_thread(cls._recognize_sync, image)
+
+    @classmethod
+    async def convert(cls, source: Path,
                       progress: Callable[[int], None] | None = None) -> list[OcrCue]:
         if source.suffix.casefold() != ".sup" or not source.is_file():
             raise OcrError("Choisissez un fichier PGS .sup accessible.")
-        executable = ToolDetectionService.resolve_executable("tesseract")
-        if not executable:
-            raise OcrError("Tesseract est introuvable. Installez-le avec la langue souhaitée, puis redémarrez SubForge.")
-        available = await cls.languages()
-        if language not in available:
-            raise OcrError(f"Langue OCR {language} absente. Installez {language}.traineddata dans "
-                           f"le dossier tessdata de Tesseract (langues trouvées : {', '.join(available) or 'aucune'}).")
         cues = []
         frames = PgsService.read(source)
         while frame := await asyncio.to_thread(lambda: next(frames, None)):
-            text, confidence = await cls.recognize(frame.image, language)
+            text, confidence = await cls.recognize(frame.image)
             cues.append(OcrCue(frame.start_ms, frame.end_ms, text, confidence))
             if progress:
                 progress(len(cues))

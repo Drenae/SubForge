@@ -22,7 +22,7 @@ class SettingsView(ft.Container):
                     ft.Text("Paramètres", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
                     ft.Text("Dépendances externes", size=18, weight=ft.FontWeight.W_600, color=theme.TEXT),
                     ft.Text(
-                        "SubForge utilise FFmpeg, FFprobe et Tesseract pour l’extraction et l’OCR.",
+                        "SubForge utilise FFmpeg et FFprobe pour analyser et extraire les sous-titres. L’OCR est intégré.",
                         color=theme.TEXT_MUTED,
                     ),
                     self.refresh_button,

@@ -39,7 +39,7 @@ class OcrBatchService:
         raise OSError("Trop de fichiers portent le même nom")
 
     @classmethod
-    async def run(cls, jobs: list[ExtractionJob], destination: Path, language: str,
+    async def run(cls, jobs: list[ExtractionJob], destination: Path,
                   cancelled: Callable[[], bool],
                   on_progress: Callable[[int, int, int, OcrBatchResult | None], None]) -> list[OcrBatchResult]:
         results = []
@@ -50,8 +50,7 @@ class OcrBatchService:
                 with tempfile.TemporaryDirectory(prefix="subforge-batch-") as folder:
                     sup = await ExtractionService.extract(job, Path(folder))
                     cues = await OcrService.convert(
-                        sup, language,
-                        lambda count: on_progress(len(results), len(jobs), count, None),
+                        sup, lambda count: on_progress(len(results), len(jobs), count, None),
                     )
                     uncertain = sum(cue.confidence is None or cue.confidence < 65 or not cue.text.strip()
                                     for cue in cues)

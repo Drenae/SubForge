@@ -1,7 +1,6 @@
 import os
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 from app.models.tool_info import ToolInfo
@@ -12,19 +11,18 @@ class ToolDetectionService:
     _logger = LoggingService.get_logger("tools")
 
     @staticmethod
+    def _binary_name(executable: str) -> str:
+        return executable + (".exe" if os.name == "nt" else "")
+
+    @staticmethod
     def resolve_executable(executable: str) -> str | None:
-        found = shutil.which(executable)
-        if found:
-            return found
-        if executable.casefold() != "tesseract" or sys.platform != "win32":
-            return None
-        roots = [os.environ.get("ProgramFiles"), os.environ.get("ProgramFiles(x86)")]
-        candidates = [Path(root) / "Tesseract-OCR" / "tesseract.exe"
-                      for root in roots if root]
-        local = os.environ.get("LOCALAPPDATA")
-        if local:
-            candidates.append(Path(local) / "Programs" / "Tesseract-OCR" / "tesseract.exe")
-        return next((str(path) for path in candidates if path.is_file()), None)
+        filename = ToolDetectionService._binary_name(executable)
+        assets = Path(os.environ.get("FLET_ASSETS_DIR") or
+                      Path(__file__).resolve().parents[2] / "assets")
+        bundled = assets / "tools" / "windows" / filename
+        if bundled.is_file():
+            return str(bundled)
+        return shutil.which(executable)
 
     @staticmethod
     def detect(executable: str) -> ToolInfo:
@@ -34,14 +32,12 @@ class ToolDetectionService:
             return ToolInfo(
                 name=executable,
                 available=False,
-                error=("Installez Tesseract OCR et vérifiez son emplacement sous Windows."
-                       if executable.casefold() == "tesseract" else
-                       "Exécutable introuvable dans le PATH système."),
+                error="Exécutable introuvable dans le PATH système.",
             )
 
         try:
             result = subprocess.run(
-                [path, "--version" if executable.casefold() == "tesseract" else "-version"],
+                [path, "-version"],
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
@@ -72,14 +68,11 @@ class ToolDetectionService:
         return {
             "ffmpeg": ToolDetectionService.detect("ffmpeg"),
             "ffprobe": ToolDetectionService.detect("ffprobe"),
-            "tesseract": ToolDetectionService.detect("tesseract"),
         }
 
     @staticmethod
     def _extract_version(first_line: str) -> str | None:
         parts = first_line.split()
-        if len(parts) >= 2 and parts[0].lower() == "tesseract":
-            return parts[1]
         if len(parts) >= 3 and parts[0].lower() in {"ffmpeg", "ffprobe"} and parts[1].lower() == "version":
             return parts[2]
         return first_line or None

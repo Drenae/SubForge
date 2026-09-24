@@ -144,7 +144,8 @@ Objectif principal : convertir les sous-titres basés sur des images en texte.
 - [x] Intégrer le moteur retenu sans dépendre de Subtitle Edit.
 - [x] PGS → SRT.
 - [ ] VobSub → SRT si techniquement pertinent.
-- [x] Choix de la langue OCR.
+- [x] Modèle OCR multilingue intégré (français inclus).
+- [ ] Choix d’un modèle de langue spécialisé si nécessaire.
 - [x] Prétraitement des images si nécessaire.
 - [x] Préserver précisément les timecodes.
 - [x] Afficher la progression OCR.

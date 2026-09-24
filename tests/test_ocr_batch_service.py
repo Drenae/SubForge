@@ -23,14 +23,14 @@ def test_batch_continues_after_failure_and_never_overwrites(tmp_path):
         sup.write_bytes(b"PGS")
         return sup
 
-    async def fake_convert(source, language, callback):
+    async def fake_convert(source, callback):
         callback(1)
         return [OcrCue(1000, 2000, "Bonjour", 50)]
 
     with patch("app.services.ocr_batch_service.ExtractionService.extract", side_effect=fake_extract), \
          patch("app.services.ocr_batch_service.OcrService.convert", side_effect=fake_convert):
         results = asyncio.run(OcrBatchService.run(
-            jobs, tmp_path, "fra", lambda: False, lambda *args: progress.append(args)))
+            jobs, tmp_path, lambda: False, lambda *args: progress.append(args)))
 
     assert results[0].output.name.endswith("_2.srt")
     assert "Bonjour" in results[0].output.read_text(encoding="utf-8")

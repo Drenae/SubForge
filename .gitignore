@@ -29,3 +29,5 @@ logs/
 
 # macOS
 .DS_Store
+# Windows binaries are staged by scripts/prepare_windows_tools.ps1 for builds.
+src/assets/tools/windows/*.exe

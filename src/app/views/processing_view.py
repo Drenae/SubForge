@@ -26,9 +26,6 @@ class ProcessingView(ft.Container):
         self.ocr_running = False
         self.batch_running = False
         self.ocr_source: Path | None = None
-        self.ocr_language = ft.Dropdown(label="Langue OCR", value="fra", width=150,
-            options=[ft.DropdownOption(key=code, text=label) for code, label in
-                     (("fra", "Français"), ("eng", "Anglais"), ("deu", "Allemand"), ("spa", "Espagnol"))])
         self.ocr_status = ft.Text(color=theme.TEXT_MUTED)
         self.ocr_editor = ft.TextField(label="SRT reconnu (corrigez le texte avant l'enregistrement)",
                                        multiline=True, min_lines=8, max_lines=16, visible=False)
@@ -46,7 +43,8 @@ class ProcessingView(ft.Container):
                 ]),
                 self.output_label, self.summary, self.progress, self.file_progress, self.report,
                 ft.Text("OCR PGS → SRT", size=18, color=theme.TEXT),
-                ft.Row(wrap=True, controls=[self.ocr_language,
+                ft.Text("OCR multilingue intégré · aucun moteur externe requis", color=theme.TEXT_MUTED),
+                ft.Row(wrap=True, controls=[
                     ft.Button("Choisir un .sup et lancer l'OCR", on_click=self._run_ocr),
                     ft.Button("OCR des PGS sélectionnés", on_click=self._run_ocr_batch),
                     self.ocr_save]),
@@ -144,7 +142,7 @@ class ProcessingView(ft.Container):
             self._safe_update()
 
         try:
-            cues = await OcrService.convert(self.ocr_source, self.ocr_language.value or "fra", progress)
+            cues = await OcrService.convert(self.ocr_source, progress)
             self.ocr_editor.value = OcrService.to_srt(cues)
             self.ocr_editor.visible = True
             self.ocr_save.visible = True
@@ -215,8 +213,7 @@ class ProcessingView(ft.Container):
 
         try:
             results = await OcrBatchService.run(
-                jobs, self.destination, self.ocr_language.value or "fra",
-                lambda: self.cancel_requested, on_progress,
+                jobs, self.destination, lambda: self.cancel_requested, on_progress,
             )
             succeeded = sum(result.output is not None for result in results)
             uncertain = sum(result.uncertain for result in results)

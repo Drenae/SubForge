@@ -68,14 +68,21 @@ flet build web -v
 
 For more details on building Web app, refer to the [Web Packaging Guide](https://flet.dev/docs/publish/web/).
 
-## OCR PGS sous Windows
+## Application Windows autonome
 
-L'OCR requiert [Tesseract OCR](https://tesseract-ocr.github.io/tessdoc/Installation.html), installé séparément et accessible dans le `PATH` Windows. Installez aussi les données de langue souhaitées, notamment `fra` pour le français ; vérifiez avec `tesseract --list-langs` dans PowerShell. SubForge utilise FFmpeg pour extraire les pistes PGS en `.sup` avant l'OCR ; Tesseract ne dépend pas de Subtitle Edit.
+Le build Windows intègre l’OCR, ses modèles, FFmpeg et FFprobe. Aucun de ces logiciels ne doit être installé séparément sur le PC qui utilisera l’application.
 
-Dans **Traitements**, choisissez un `.sup`, la langue OCR, puis lancez la reconnaissance. Relisez et corrigez le SRT affiché avant de l'enregistrer. Une confiance faible ou un texte vide est signalé dans le résumé. L'export refuse de remplacer un fichier existant.
+Pour préparer les exécutables FFmpeg dans le projet puis construire l’application, lancer `scripts\build_windows.ps1` depuis PowerShell. Le script télécharge une archive FFmpeg pour Windows **au moment du build**, vérifie sa somme SHA-256 et place `ffmpeg.exe` et `ffprobe.exe` dans les ressources embarquées. Aucun téléchargement n’est effectué par l’application distribuée. Voir [la page du fournisseur des builds FFmpeg](https://www.gyan.dev/ffmpeg/builds/) pour la licence et le code source correspondant.
+
+Pendant le développement, `flet run` utilisera les exécutables embarqués si `scripts\prepare_windows_tools.ps1` a déjà été lancé, sinon ceux présents dans le `PATH` du développeur. Les dépendances Python du projet sont installées dans son environnement virtuel au build.
+
+## OCR PGS intégré
+
+L'OCR utilise RapidOCR et ONNX Runtime. Les modèles français et multilingues sont fournis avec les dépendances Python du projet : aucun Tesseract, paquet de langue ou téléchargement au lancement n'est nécessaire. Le modèle fonctionne automatiquement, sans réglage de langue.
+
+Dans **Traitements**, choisissez un `.sup`, lancez la reconnaissance et corrigez le SRT avant de l'enregistrer. Les résultats de faible confiance sont signalés. L'export UTF-8 refuse d'écraser un fichier existant.
 
 ### OCR de plusieurs épisodes
 
-Sélectionnez les pistes PGS voulues dans **Médias**, choisissez un dossier de sortie et une langue OCR dans **Traitements**, puis cliquez sur **OCR des PGS sélectionnés**. SubForge extrait chaque piste dans un dossier temporaire, crée un SRT UTF-8 avec un nom unique et continue si une piste échoue. Le rapport indique les fichiers produits et le nombre de répliques dont la reconnaissance est incertaine. Relisez les SRT produits avant de les utiliser. Le bouton d'annulation arrête le lot après la piste en cours.
+Sélectionnez les pistes PGS voulues dans **Médias**, choisissez un dossier de sortie dans **Traitements**, puis cliquez sur **OCR des PGS sélectionnés**. SubForge extrait chaque piste dans un dossier temporaire, crée un SRT UTF-8 avec un nom unique et continue si une piste échoue. Le rapport indique les fichiers produits et le nombre de répliques dont la reconnaissance est incertaine. Relisez les SRT produits avant de les utiliser. Le bouton d'annulation arrête le lot après la piste en cours.
 
-SubForge recherche Tesseract dans le `PATH` et dans les emplacements Windows courants (`Program Files\\Tesseract-OCR` et `AppData\\Local\\Programs\\Tesseract-OCR`). Ouvrez **Paramètres** pour vérifier sa détection. Si le moteur est présent mais que `fra` est absent, installez `fra.traineddata` dans le sous-dossier `tessdata`, puis relancez l'application.

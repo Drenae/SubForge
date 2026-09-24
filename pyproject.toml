@@ -8,8 +8,10 @@ authors = [
     { name = "Flet developer", email = "you@example.com" }
 ]
 dependencies = [
-    "flet>=1.0.1",
-    "Pillow>=10,<13"
+    "flet==1.0.1",
+    "Pillow>=10,<13",
+    "rapidocr==3.9.2",
+    "onnxruntime>=1.17,<2"
 ]
 
 [dependency-groups]

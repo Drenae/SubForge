@@ -1,10 +1,10 @@
 import asyncio
 import json
-import shutil
 import subprocess
 from pathlib import Path
 
 from app.models.subtitle_track import SubtitleTrack
+from app.services.tool_detection_service import ToolDetectionService
 
 
 class FFprobeError(Exception):
@@ -42,7 +42,7 @@ class FFprobeService:
 
     @staticmethod
     async def analyze(path: Path) -> list[SubtitleTrack]:
-        executable = shutil.which("ffprobe")
+        executable = ToolDetectionService.resolve_executable("ffprobe")
         if not executable:
             raise FFprobeError("FFprobe est introuvable. Vérifiez les Paramètres.")
         flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
