@@ -14,7 +14,7 @@ class HomeView(ft.Container):
         self.state = state
         self.picker = ft.FilePicker()
         self.status = ft.Text(color=theme.TEXT_MUTED, selectable=True)
-        self.file_list = ft.ListView(spacing=8, expand=True)
+        self.file_list = ft.ListView(spacing=6, expand=True)
         self.count = ft.Text(color=theme.TEXT_MUTED)
         self.analyzing = False
         self.language_filter = ft.Dropdown(label="Langue", width=190,
@@ -30,31 +30,30 @@ class HomeView(ft.Container):
             value=state.track_filter.default_only, on_change=self._change_filter)
         super().__init__(
             expand=True,
-            padding=32,
+            padding=ft.Padding.symmetric(horizontal=24, vertical=18),
             content=ft.Column(
                 expand=True,
-                spacing=18,
+                spacing=8,
                 controls=[
-                    ft.Text("Accueil", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
-                    ft.Text("Importez les vidéos dont vous souhaitez analyser les sous-titres.", color=theme.TEXT_MUTED),
-                    ft.Row(controls=[
+                    ft.Row(wrap=True, spacing=14, controls=[
+                        ft.Text("Accueil", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
+                        ft.Text("Importez et sélectionnez les sous-titres à traiter.", color=theme.TEXT_MUTED),
+                    ]),
+                    ft.Row(wrap=True, spacing=8, run_spacing=6, controls=[
                         ft.Button("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),
                         ft.Button("Importer un dossier", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._pick_folder),
-                        ft.Button("Tout retirer", icon=ft.Icons.DELETE_OUTLINE_ROUNDED, on_click=self._clear),
                         ft.Button("Analyser les pistes", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze),
-                    ]),
-                    ft.Row(controls=[
                         ft.Button("Tout sélectionner", on_click=lambda _: self._select_all(True)),
                         ft.Button("Tout désélectionner", on_click=lambda _: self._select_all(False)),
+                        ft.Button("Tout retirer", icon=ft.Icons.DELETE_OUTLINE_ROUNDED, on_click=self._clear),
                     ]),
-                    ft.Row(wrap=True, controls=[
+                    ft.Row(wrap=True, spacing=8, run_spacing=6, controls=[
                         self.language_filter, self.codec_filter, self.mode_filter,
                         self.default_filter,
                         ft.Button("Sélectionner les résultats", on_click=self._select_filtered),
                         ft.Button("Effacer les filtres", on_click=self._reset_filter),
                     ]),
-                    self.status,
-                    self.count,
+                    ft.Row(wrap=True, spacing=12, controls=[self.count, self.status]),
                     self.file_list,
                 ],
             ),
@@ -203,8 +202,8 @@ class HomeView(ft.Container):
             bgcolor=theme.SURFACE,
             border=ft.Border.all(1, theme.BORDER),
             border_radius=8,
-            padding=ft.Padding.symmetric(horizontal=14, vertical=10),
-            content=ft.Column(spacing=8, controls=[
+            padding=ft.Padding.symmetric(horizontal=12, vertical=6),
+            content=ft.Column(spacing=4, controls=[
                 ft.Row(controls=[
                     ft.Icon(ft.Icons.MOVIE_ROUNDED, color=theme.ACCENT),
                     ft.Text(media.name, color=theme.TEXT, weight=ft.FontWeight.W_600, expand=True),
@@ -213,7 +212,7 @@ class HomeView(ft.Container):
                                   on_click=lambda _, p=str(media.path): self._remove(p)),
                 ]),
                 ft.Text(str(media.path), color=theme.TEXT_MUTED, size=12, selectable=True),
-                ft.Column(controls=children, spacing=5),
+                ft.Column(controls=children, spacing=3),
             ]),
         )
 
