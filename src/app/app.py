@@ -50,4 +50,4 @@ class SubForgeApp:
             content = SettingsView()
         else:
             content = HomeView(self.media_state)
-        self.shell.set_content(content, route)
+        self.shell.set_content(content)
