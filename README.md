@@ -77,3 +77,5 @@ Dans **Traitements**, choisissez un `.sup`, la langue OCR, puis lancez la reconn
 ### OCR de plusieurs épisodes
 
 Sélectionnez les pistes PGS voulues dans **Médias**, choisissez un dossier de sortie et une langue OCR dans **Traitements**, puis cliquez sur **OCR des PGS sélectionnés**. SubForge extrait chaque piste dans un dossier temporaire, crée un SRT UTF-8 avec un nom unique et continue si une piste échoue. Le rapport indique les fichiers produits et le nombre de répliques dont la reconnaissance est incertaine. Relisez les SRT produits avant de les utiliser. Le bouton d'annulation arrête le lot après la piste en cours.
+
+SubForge recherche Tesseract dans le `PATH` et dans les emplacements Windows courants (`Program Files\\Tesseract-OCR` et `AppData\\Local\\Programs\\Tesseract-OCR`). Ouvrez **Paramètres** pour vérifier sa détection. Si le moteur est présent mais que `fra` est absent, installez `fra.traineddata` dans le sous-dossier `tessdata`, puis relancez l'application.

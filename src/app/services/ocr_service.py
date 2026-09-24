@@ -1,7 +1,6 @@
 import asyncio
 import csv
 import io
-import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -11,6 +10,7 @@ from PIL import Image, ImageOps
 
 from app.models.ocr_cue import OcrCue
 from app.services.pgs_service import PgsService
+from app.services.tool_detection_service import ToolDetectionService
 
 
 class OcrError(RuntimeError):
@@ -20,7 +20,7 @@ class OcrError(RuntimeError):
 class OcrService:
     @staticmethod
     async def languages() -> list[str]:
-        executable = shutil.which("tesseract")
+        executable = ToolDetectionService.resolve_executable("tesseract")
         if not executable:
             return []
         process = await asyncio.create_subprocess_exec(
@@ -60,9 +60,9 @@ class OcrService:
 
     @classmethod
     async def recognize(cls, image: Image.Image, language: str) -> tuple[str, float | None]:
-        executable = shutil.which("tesseract")
+        executable = ToolDetectionService.resolve_executable("tesseract")
         if not executable:
-            raise OcrError("Tesseract est introuvable dans le PATH système.")
+            raise OcrError("Tesseract est introuvable. Installez-le avec la langue souhaitée, puis redémarrez SubForge.")
         with tempfile.TemporaryDirectory(prefix="subforge-ocr-") as folder:
             path = Path(folder) / "cue.png"
             await asyncio.to_thread(cls._prepare, image, path)
@@ -86,9 +86,13 @@ class OcrService:
                       progress: Callable[[int], None] | None = None) -> list[OcrCue]:
         if source.suffix.casefold() != ".sup" or not source.is_file():
             raise OcrError("Choisissez un fichier PGS .sup accessible.")
+        executable = ToolDetectionService.resolve_executable("tesseract")
+        if not executable:
+            raise OcrError("Tesseract est introuvable. Installez-le avec la langue souhaitée, puis redémarrez SubForge.")
         available = await cls.languages()
         if language not in available:
-            raise OcrError(f"Langue OCR {language} absente de Tesseract ({', '.join(available) or 'moteur absent'}).")
+            raise OcrError(f"Langue OCR {language} absente. Installez {language}.traineddata dans "
+                           f"le dossier tessdata de Tesseract (langues trouvées : {', '.join(available) or 'aucune'}).")
         cues = []
         frames = PgsService.read(source)
         while frame := await asyncio.to_thread(lambda: next(frames, None)):
