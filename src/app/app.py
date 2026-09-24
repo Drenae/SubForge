@@ -13,6 +13,7 @@ from app.state.media_state import MediaState
 from app.views.home_view import HomeView
 from app.views.extraction_view import ExtractionView
 from app.views.conversion_view import ConversionView
+from app.views.settings_view import SettingsView
 
 
 class SubForgeApp:
@@ -45,6 +46,8 @@ class SubForgeApp:
         elif route == "conversion":
             self.conversion_view.refresh_selection()
             content = self.conversion_view
+        elif route == "settings":
+            content = SettingsView()
         else:
             content = HomeView(self.media_state)
-        self.shell.set_content(content)
+        self.shell.set_content(content, route)

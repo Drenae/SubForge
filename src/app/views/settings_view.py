@@ -1,6 +1,7 @@
 import flet as ft
 
 from app.components.tool_status_card import ToolStatusCard
+from app.components.page_header import PageHeader
 from app.config import theme
 from app.services.tool_detection_service import ToolDetectionService
 
@@ -19,8 +20,8 @@ class SettingsView(ft.Container):
             content=ft.Column(
                 spacing=18,
                 controls=[
-                    ft.Text("Paramètres", size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
-                    ft.Text("Dépendances externes", size=18, weight=ft.FontWeight.W_600, color=theme.TEXT),
+                    PageHeader("Paramètres", "Vérifiez les outils utilisés par SubForge."),
+                    ft.Text("Outils multimédias", size=18, weight=ft.FontWeight.W_600, color=theme.TEXT),
                     ft.Text(
                         "SubForge utilise FFmpeg et FFprobe pour analyser et extraire les sous-titres. L’OCR est intégré.",
                         color=theme.TEXT_MUTED,
