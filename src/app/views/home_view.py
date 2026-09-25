@@ -37,12 +37,13 @@ class HomeView(ft.Column):
             expand=True,
             spacing=8,
             controls=[
-                    ft.Row(vertical_alignment=ft.CrossAxisAlignment.START, spacing=20, controls=[
-                        ft.Row(width=375, spacing=8, controls=[
+                    ft.Row(vertical_alignment=ft.CrossAxisAlignment.CENTER, spacing=20, controls=[
+                        ft.Row(expand=True, spacing=8, controls=[
                             AppButton("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),
                             AppButton("Importer un dossier", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._pick_folder),
                         ]),
-                        ft.Row(expand=True, wrap=True, spacing=8, run_spacing=4, controls=[
+                        ft.Container(expand=True),
+                        ft.Row(spacing=8, run_spacing=4, controls=[
                             self.language_filter, self.codec_filter, self.mode_filter,
                             self.default_filter,
                             AppButton("Sélectionner les résultats", on_click=self._select_filtered),
