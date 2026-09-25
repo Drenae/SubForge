@@ -3,6 +3,7 @@ import flet as ft
 from app.config import theme
 from app.config.settings import APP_NAME
 from app.components.page_header import PageHeader
+from app.components.nav_button import NavButton
 
 
 class AppShell(ft.Column):
@@ -39,33 +40,12 @@ class AppShell(ft.Column):
                     ft.Text(APP_NAME, size=22, weight=ft.FontWeight.BOLD, color=theme.TEXT),
                 ]),
                 ft.Container(width=16),
-                self._nav_button("Accueil", ft.Icons.HOME_ROUNDED, "home"),
-                self._nav_button("Extraction", ft.Icons.SAVE_ALT_ROUNDED, "extraction"),
-                self._nav_button("Conversion", ft.Icons.AUTO_FIX_HIGH_ROUNDED, "conversion"),
+                NavButton("Accueil", ft.Icons.HOME_ROUNDED, "home", self._on_navigate),
+                NavButton("Extraction", ft.Icons.SAVE_ALT_ROUNDED, "extraction", self._on_navigate),
+                NavButton("Conversion", ft.Icons.AUTO_FIX_HIGH_ROUNDED, "conversion", self._on_navigate),
                 ft.Container(expand=True),
-                self._nav_button("Paramètres", ft.Icons.SETTINGS_ROUNDED, "settings"),
+                NavButton("Paramètres", ft.Icons.SETTINGS_ROUNDED, "settings", self._on_navigate),
             ]),
-        )
-
-    def _nav_button(self, label: str, icon: str, route: str) -> ft.Button:
-        return ft.Button(
-            content=ft.Row(controls=[
-                ft.Icon(icon, size=20, color=ft.Colors.BLACK),
-                ft.Text(label, color=ft.Colors.BLACK),
-            ]),
-            style=ft.ButtonStyle(
-                padding=ft.Padding.symmetric(horizontal=12, vertical=14),
-                shape=ft.RoundedRectangleBorder(radius=6),
-                side={
-                    ft.ControlState.DEFAULT: ft.BorderSide(2, ft.Colors.YELLOW_800),
-                    ft.ControlState.HOVERED: ft.BorderSide(2, ft.Colors.YELLOW_800)
-                },
-                bgcolor={
-                    ft.ControlState.DEFAULT: ft.Colors.YELLOW_700,
-                    ft.ControlState.HOVERED: ft.Colors.YELLOW_800,
-                },
-            ),
-            on_click=lambda _: self._on_navigate(route),
         )
 
     def set_content(self, content: ft.Control) -> None:
