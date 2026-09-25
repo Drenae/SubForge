@@ -6,7 +6,7 @@ from app.services.extraction_service import ExtractionJob, ExtractionService
 from app.state.media_state import MediaState
 
 
-class ExtractionView(ft.Container):
+class ExtractionView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Extraction"
         self.subtitle = "Extrait les pistes cochées dans Accueil dans leur format d'origine, sans conversion."
@@ -23,14 +23,15 @@ class ExtractionView(ft.Container):
         self.report = ft.ListView(expand=True, spacing=6)
         super().__init__(
             expand=True,
-            content=ft.Column(expand=True, spacing=16, controls=[
+            spacing=16,
+            controls=[
                 ft.Row(wrap=True, controls=[
                     ft.Button("Choisir le dossier de sortie", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._choose_folder),
                     ft.Button("Extraire", icon=ft.Icons.SAVE_ALT_ROUNDED, on_click=self._extract),
                     ft.Button("Annuler après la piste en cours", on_click=self._cancel),
                 ]),
                 self.output_label, self.summary, self.progress, self.file_progress, self.report,
-            ]),
+            ],
         )
         self._refresh_summary()
 

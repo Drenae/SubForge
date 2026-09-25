@@ -10,7 +10,7 @@ from app.services.pgs_service import PgsError
 from app.state.media_state import MediaState
 
 
-class ConversionView(ft.Container):
+class ConversionView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Conversion"
         self.subtitle = "Convertissez des sous-titres PGS en SRT avec l'OCR intégré."
@@ -32,7 +32,8 @@ class ConversionView(ft.Container):
         self.ocr_save = ft.Button("Enregistrer le SRT corrigé", on_click=self._save_ocr, visible=False)
         super().__init__(
             expand=True,
-            content=ft.Column(expand=True, spacing=16, controls=[
+            spacing=16,
+            controls=[
                 ft.Text("Fichier .sup isolé : choisissez le fichier, vérifiez le texte reconnu, puis enregistrez le SRT corrigé.",
                         color=theme.TEXT_MUTED),
                 ft.Row(wrap=True, controls=[
@@ -49,7 +50,7 @@ class ConversionView(ft.Container):
                     ft.Button("Annuler après la piste en cours", on_click=self._cancel),
                 ]),
                 self.output_label, self.progress, self.ocr_status, self.report, self.ocr_editor,
-            ]),
+            ],
         )
         self.refresh_selection()
 

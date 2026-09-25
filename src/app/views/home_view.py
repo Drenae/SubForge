@@ -9,7 +9,7 @@ from app.services.media_import_service import MediaImportService
 from app.services.ffprobe_service import FFprobeService, FFprobeError
 
 
-class HomeView(ft.Container):
+class HomeView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Accueil"
         self.subtitle = "Importez et sélectionnez les sous-titres à traiter."
@@ -34,10 +34,8 @@ class HomeView(ft.Container):
             value=state.track_filter.default_only, on_change=self._change_filter)
         super().__init__(
             expand=True,
-            content=ft.Column(
-                expand=True,
-                spacing=8,
-                controls=[
+            spacing=8,
+            controls=[
                     ft.Row(vertical_alignment=ft.CrossAxisAlignment.START, spacing=20, controls=[
                         ft.Row(width=375, spacing=8, controls=[
                             ft.Button("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),
@@ -58,8 +56,7 @@ class HomeView(ft.Container):
                     ]),
                     self.status,
                     self.file_list,
-                ],
-            ),
+            ],
         )
         self._render()
 

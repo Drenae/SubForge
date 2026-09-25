@@ -5,7 +5,7 @@ from app.config import theme
 from app.services.tool_detection_service import ToolDetectionService
 
 
-class SettingsView(ft.Container):
+class SettingsView(ft.Column):
     def __init__(self):
         self.title = "Paramètres"
         self.subtitle = "Vérifiez les outils utilisés par SubForge."
@@ -18,10 +18,8 @@ class SettingsView(ft.Container):
         )
         super().__init__(
             expand=True,
-            padding=32,
-            content=ft.Column(
-                spacing=18,
-                controls=[
+            spacing=18,
+            controls=[
                     ft.Text("Outils multimédias", size=18, weight=ft.FontWeight.W_600, color=theme.TEXT),
                     ft.Text(
                         "SubForge utilise FFmpeg et FFprobe pour analyser et extraire les sous-titres. L’OCR est intégré.",
@@ -29,8 +27,7 @@ class SettingsView(ft.Container):
                     ),
                     self.refresh_button,
                     self.tools_column,
-                ],
-            ),
+            ],
         )
         self._load_tools()
 
