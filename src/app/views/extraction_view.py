@@ -23,7 +23,6 @@ class ExtractionView(ft.Container):
         self.report = ft.ListView(expand=True, spacing=6)
         super().__init__(
             expand=True,
-            padding=32,
             content=ft.Column(expand=True, spacing=16, controls=[
                 ft.Row(wrap=True, controls=[
                     ft.Button("Choisir le dossier de sortie", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._choose_folder),
