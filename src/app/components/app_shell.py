@@ -7,7 +7,7 @@ from app.components.page_header import PageHeader
 
 class AppShell(ft.Row):
     def __init__(self, content: ft.Control, on_navigate):
-        self.content_area = ft.Container(expand=True, content=content)
+        self.content_area = ft.Container(expand=True, content=content, padding=ft.Padding.symmetric(horizontal=20, vertical=15),)
         self.header_area = ft.Container(content=self._page_header(content))
         self._on_navigate = on_navigate
         super().__init__(
