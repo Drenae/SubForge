@@ -3,6 +3,7 @@ from pathlib import Path
 import flet as ft
 
 from app.config import theme
+from app.components.app_button import AppButton
 from app.services.extraction_service import ExtractionJob
 from app.services.ocr_service import OcrError, OcrService
 from app.services.ocr_batch_service import OcrBatchService
@@ -29,7 +30,7 @@ class ConversionView(ft.Column):
         self.report = ft.ListView(expand=True, spacing=6)
         self.ocr_editor = ft.TextField(label="SRT reconnu (corrigez le texte avant l'enregistrement)",
                                        multiline=True, min_lines=8, max_lines=16, visible=False)
-        self.ocr_save = ft.Button("Enregistrer le SRT corrigé", on_click=self._save_ocr, visible=False)
+        self.ocr_save = AppButton("Enregistrer le SRT corrigé", on_click=self._save_ocr, visible=False)
         super().__init__(
             expand=True,
             spacing=16,
@@ -37,7 +38,7 @@ class ConversionView(ft.Column):
                 ft.Text("Fichier .sup isolé : choisissez le fichier, vérifiez le texte reconnu, puis enregistrez le SRT corrigé.",
                         color=theme.TEXT_MUTED),
                 ft.Row(wrap=True, controls=[
-                    ft.Button("Choisir un .sup et lancer l'OCR", on_click=self._run_ocr),
+                    AppButton("Choisir un .sup et lancer l'OCR", on_click=self._run_ocr),
                     self.ocr_save,
                 ]),
                 ft.Text("Pistes sélectionnées dans Accueil : le traitement extrait temporairement chaque PGS "
@@ -45,9 +46,9 @@ class ConversionView(ft.Column):
                         color=theme.TEXT_MUTED),
                 self.ocr_selection,
                 ft.Row(wrap=True, controls=[
-                    ft.Button("Choisir le dossier de sortie", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._choose_folder),
-                    ft.Button("Convertir les PGS sélectionnés en SRT", on_click=self._run_ocr_batch),
-                    ft.Button("Annuler après la piste en cours", on_click=self._cancel),
+                    AppButton("Choisir le dossier de sortie", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._choose_folder),
+                    AppButton("Convertir les PGS sélectionnés en SRT", on_click=self._run_ocr_batch),
+                    AppButton("Annuler après la piste en cours", on_click=self._cancel),
                 ]),
                 self.output_label, self.progress, self.ocr_status, self.report, self.ocr_editor,
             ],

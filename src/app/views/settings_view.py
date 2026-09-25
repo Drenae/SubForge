@@ -1,6 +1,7 @@
 import flet as ft
 
 from app.components.tool_status_card import ToolStatusCard
+from app.components.app_button import AppButton
 from app.config import theme
 from app.services.tool_detection_service import ToolDetectionService
 
@@ -11,7 +12,7 @@ class SettingsView(ft.Column):
         self.subtitle = "Vérifiez les outils utilisés par SubForge."
         self.actions = []
         self.tools_column = ft.Column(spacing=12)
-        self.refresh_button = ft.Button(
+        self.refresh_button = AppButton(
             "Actualiser",
             icon=ft.Icons.REFRESH_ROUNDED,
             on_click=self._refresh_tools,

@@ -3,6 +3,7 @@ import asyncio
 import flet as ft
 
 from app.config import theme
+from app.components.app_button import AppButton
 from app.state.media_state import MediaState
 from app.models.track_filter import TrackFilter
 from app.services.media_import_service import MediaImportService
@@ -13,7 +14,7 @@ class HomeView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Accueil"
         self.subtitle = "Importez et sélectionnez les sous-titres à traiter."
-        self.actions = [ft.Button("Analyser", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze)]
+        self.actions = [AppButton("Analyser", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze)]
         self.state = state
         self.picker = ft.FilePicker()
         self.status = ft.Text(color=theme.TEXT_MUTED, selectable=True)
@@ -38,21 +39,21 @@ class HomeView(ft.Column):
             controls=[
                     ft.Row(vertical_alignment=ft.CrossAxisAlignment.START, spacing=20, controls=[
                         ft.Row(width=375, spacing=8, controls=[
-                            ft.Button("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),
-                            ft.Button("Importer un dossier", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._pick_folder),
+                            AppButton("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),
+                            AppButton("Importer un dossier", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._pick_folder),
                         ]),
                         ft.Row(expand=True, wrap=True, spacing=8, run_spacing=4, controls=[
                             self.language_filter, self.codec_filter, self.mode_filter,
                             self.default_filter,
-                            ft.Button("Sélectionner les résultats", on_click=self._select_filtered),
-                            ft.Button("Effacer les filtres", on_click=self._reset_filter),
+                            AppButton("Sélectionner les résultats", on_click=self._select_filtered),
+                            AppButton("Effacer les filtres", on_click=self._reset_filter),
                         ]),
                     ]),
                     ft.Row(spacing=12, vertical_alignment=ft.CrossAxisAlignment.CENTER, controls=[
                         self.count,
                         ft.Container(expand=True),
                         self.select_all_checkbox,
-                        ft.Button("Tout retirer", icon=ft.Icons.DELETE_OUTLINE_ROUNDED, on_click=self._clear),
+                        AppButton("Tout retirer", icon=ft.Icons.DELETE_OUTLINE_ROUNDED, on_click=self._clear),
                     ]),
                     self.status,
                     self.file_list,
@@ -216,8 +217,8 @@ class HomeView(ft.Column):
                     ft.Icon(ft.Icons.MOVIE_ROUNDED, color=theme.ACCENT),
                     ft.Text(media.name, color=theme.TEXT, weight=ft.FontWeight.W_600, expand=True),
                     ft.Text(f"{len(tracks) if tracks is not None else '—'} piste(s)", color=theme.TEXT_MUTED),
-                    ft.IconButton(icon=ft.Icons.CLOSE_ROUNDED, tooltip="Retirer",
-                                  on_click=lambda _, p=str(media.path): self._remove(p)),
+                    AppButton(icon=ft.Icons.CLOSE_ROUNDED, tooltip="Retirer",
+                              on_click=lambda _, p=str(media.path): self._remove(p)),
                 ]),
                 ft.Text(str(media.path), color=theme.TEXT_MUTED, size=12, selectable=True),
                 ft.Column(controls=children, spacing=3),
