@@ -3,7 +3,6 @@ from pathlib import Path
 import flet as ft
 
 from app.config import theme
-from app.components.page_header import PageHeader
 from app.services.extraction_service import ExtractionJob
 from app.services.ocr_service import OcrError, OcrService
 from app.services.ocr_batch_service import OcrBatchService
@@ -13,6 +12,9 @@ from app.state.media_state import MediaState
 
 class ConversionView(ft.Container):
     def __init__(self, state: MediaState):
+        self.title = "Conversion"
+        self.subtitle = "Convertissez des sous-titres PGS en SRT avec l'OCR intégré."
+        self.actions = []
         self.state = state
         self.picker = ft.FilePicker()
         self.destination: Path | None = None
@@ -32,7 +34,6 @@ class ConversionView(ft.Container):
             expand=True,
             padding=32,
             content=ft.Column(expand=True, spacing=16, controls=[
-                PageHeader("Conversion", "Convertissez des sous-titres PGS en SRT avec l'OCR intégré."),
                 ft.Text("Fichier .sup isolé : choisissez le fichier, vérifiez le texte reconnu, puis enregistrez le SRT corrigé.",
                         color=theme.TEXT_MUTED),
                 ft.Row(wrap=True, controls=[

@@ -2,17 +2,29 @@ import flet as ft
 
 from app.config import theme
 from app.config.settings import APP_NAME
+from app.components.page_header import PageHeader
 
 
 class AppShell(ft.Row):
     def __init__(self, content: ft.Control, on_navigate):
         self.content_area = ft.Container(expand=True, content=content)
+        self.header_area = ft.Container(content=self._page_header(content))
         self._on_navigate = on_navigate
         super().__init__(
             expand=True,
             spacing=0,
-            controls=[self._build_sidebar(), self.content_area],
+            controls=[
+                self._build_sidebar(),
+                ft.Column(expand=True, spacing=0, controls=[
+                    self.header_area,
+                    self.content_area,
+                ]),
+            ],
         )
+
+    @staticmethod
+    def _page_header(content: ft.Control) -> PageHeader:
+        return PageHeader(content.title, content.subtitle, content.actions)
 
     def _build_sidebar(self) -> ft.Container:
         return ft.Container(
@@ -48,11 +60,12 @@ class AppShell(ft.Row):
                 bgcolor={
                     ft.ControlState.DEFAULT: ft.Colors.BLUE_300,
                     ft.ControlState.HOVERED: ft.Colors.BLUE_600,
-                }
+                },
             ),
             on_click=lambda _: self._on_navigate(route),
         )
 
     def set_content(self, content: ft.Control) -> None:
+        self.header_area.content = self._page_header(content)
         self.content_area.content = content
-        self.content_area.update()
+        self.update()

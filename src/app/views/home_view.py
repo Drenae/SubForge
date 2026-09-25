@@ -3,7 +3,6 @@ import asyncio
 import flet as ft
 
 from app.config import theme
-from app.components.page_header import PageHeader
 from app.state.media_state import MediaState
 from app.models.track_filter import TrackFilter
 from app.services.media_import_service import MediaImportService
@@ -12,6 +11,9 @@ from app.services.ffprobe_service import FFprobeService, FFprobeError
 
 class HomeView(ft.Container):
     def __init__(self, state: MediaState):
+        self.title = "Accueil"
+        self.subtitle = "Importez et sélectionnez les sous-titres à traiter."
+        self.actions = [ft.Button("Analyser", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze)]
         self.state = state
         self.picker = ft.FilePicker()
         self.status = ft.Text(color=theme.TEXT_MUTED, selectable=True)
@@ -36,8 +38,6 @@ class HomeView(ft.Container):
                 expand=True,
                 spacing=8,
                 controls=[
-                    PageHeader("Accueil", "Importez et sélectionnez les sous-titres à traiter.",
-                               ft.Button("Analyser", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze)),
                     ft.Row(vertical_alignment=ft.CrossAxisAlignment.START, spacing=20, controls=[
                         ft.Row(width=375, spacing=8, controls=[
                             ft.Button("Ajouter des vidéos", icon=ft.Icons.ADD_ROUNDED, on_click=self._pick_files),

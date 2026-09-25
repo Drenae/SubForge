@@ -2,13 +2,15 @@ import flet as ft
 from pathlib import Path
 
 from app.config import theme
-from app.components.page_header import PageHeader
 from app.services.extraction_service import ExtractionJob, ExtractionService
 from app.state.media_state import MediaState
 
 
 class ExtractionView(ft.Container):
     def __init__(self, state: MediaState):
+        self.title = "Extraction"
+        self.subtitle = "Extrait les pistes cochées dans Accueil dans leur format d'origine, sans conversion."
+        self.actions = []
         self.state = state
         self.picker = ft.FilePicker()
         self.destination: Path | None = None
@@ -23,7 +25,6 @@ class ExtractionView(ft.Container):
             expand=True,
             padding=32,
             content=ft.Column(expand=True, spacing=16, controls=[
-                PageHeader("Extraction", "Extrait les pistes cochées dans Accueil dans leur format d'origine, sans conversion."),
                 ft.Row(wrap=True, controls=[
                     ft.Button("Choisir le dossier de sortie", icon=ft.Icons.FOLDER_OPEN_ROUNDED, on_click=self._choose_folder),
                     ft.Button("Extraire", icon=ft.Icons.SAVE_ALT_ROUNDED, on_click=self._extract),

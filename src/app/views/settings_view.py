@@ -1,13 +1,15 @@
 import flet as ft
 
 from app.components.tool_status_card import ToolStatusCard
-from app.components.page_header import PageHeader
 from app.config import theme
 from app.services.tool_detection_service import ToolDetectionService
 
 
 class SettingsView(ft.Container):
     def __init__(self):
+        self.title = "Paramètres"
+        self.subtitle = "Vérifiez les outils utilisés par SubForge."
+        self.actions = []
         self.tools_column = ft.Column(spacing=12)
         self.refresh_button = ft.Button(
             "Actualiser",
@@ -20,7 +22,6 @@ class SettingsView(ft.Container):
             content=ft.Column(
                 spacing=18,
                 controls=[
-                    PageHeader("Paramètres", "Vérifiez les outils utilisés par SubForge."),
                     ft.Text("Outils multimédias", size=18, weight=ft.FontWeight.W_600, color=theme.TEXT),
                     ft.Text(
                         "SubForge utilise FFmpeg et FFprobe pour analyser et extraire les sous-titres. L’OCR est intégré.",
