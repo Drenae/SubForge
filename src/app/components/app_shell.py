@@ -30,12 +30,12 @@ class AppShell(ft.Column):
 
     def _build_menu(self) -> ft.Container:
         return ft.Container(
-            bgcolor=theme.SURFACE,
+            bgcolor=theme.BG,
             border=ft.Border(bottom=ft.BorderSide(1, theme.BORDER)),
             padding=ft.Padding.symmetric(horizontal=20, vertical=12),
             content=ft.Row(spacing=12, vertical_alignment=ft.CrossAxisAlignment.CENTER, controls=[
                 ft.Row(spacing=10, controls=[
-                    ft.Icon(ft.Icons.SUBTITLES_ROUNDED, color=ft.Colors.BLUE_300, size=28),
+                    ft.Icon(ft.Icons.SUBTITLES_ROUNDED, color=ft.Colors.YELLOW_800, size=28),
                     ft.Text(APP_NAME, size=22, weight=ft.FontWeight.BOLD, color=theme.TEXT),
                 ]),
                 ft.Container(width=16),
@@ -56,9 +56,13 @@ class AppShell(ft.Column):
             style=ft.ButtonStyle(
                 padding=ft.Padding.symmetric(horizontal=12, vertical=14),
                 shape=ft.RoundedRectangleBorder(radius=6),
+                side={
+                    ft.ControlState.DEFAULT: ft.BorderSide(2, ft.Colors.YELLOW_800),
+                    ft.ControlState.HOVERED: ft.BorderSide(2, ft.Colors.YELLOW_800)
+                },
                 bgcolor={
-                    ft.ControlState.DEFAULT: ft.Colors.BLUE_300,
-                    ft.ControlState.HOVERED: ft.Colors.BLUE_600,
+                    ft.ControlState.DEFAULT: ft.Colors.YELLOW_700,
+                    ft.ControlState.HOVERED: ft.Colors.YELLOW_800,
                 },
             ),
             on_click=lambda _: self._on_navigate(route),
