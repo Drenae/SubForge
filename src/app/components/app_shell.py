@@ -32,7 +32,6 @@ class AppShell(ft.Column):
     def _build_menu(self) -> ft.Container:
         return ft.Container(
             bgcolor=theme.BG,
-            border=ft.Border(bottom=ft.BorderSide(1, theme.BORDER)),
             padding=ft.Padding.symmetric(horizontal=20, vertical=12),
             content=ft.Row(spacing=12, vertical_alignment=ft.CrossAxisAlignment.CENTER, controls=[
                 ft.Row(spacing=10, controls=[
