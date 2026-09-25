@@ -32,7 +32,6 @@ class ConversionView(ft.Container):
         self.ocr_save = ft.Button("Enregistrer le SRT corrigé", on_click=self._save_ocr, visible=False)
         super().__init__(
             expand=True,
-            padding=32,
             content=ft.Column(expand=True, spacing=16, controls=[
                 ft.Text("Fichier .sup isolé : choisissez le fichier, vérifiez le texte reconnu, puis enregistrez le SRT corrigé.",
                         color=theme.TEXT_MUTED),
