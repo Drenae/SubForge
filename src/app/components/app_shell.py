@@ -6,22 +6,21 @@ from app.components.app_navigation import AppNavigation
 
 class AppShell(ft.Column):
     def __init__(self, content: ft.Control, on_navigate):
+        super().__init__()
         self.content_area = ft.Container(
             expand=True, content=content,
             padding=ft.Padding.symmetric(horizontal=20, vertical=15),
         )
         self.header_area = ft.Container(content=self._app_header(content))
         self._on_navigate = on_navigate
-        super().__init__(
-            expand=True,
-            spacing=0,
-            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-            controls=[
-                AppNavigation(self._on_navigate),
-                self.header_area,
-                self.content_area,
-            ],
-        )
+        self.expand = True
+        self.spacing = 0
+        self.horizontal_alignment = ft.CrossAxisAlignment.STRETCH
+        self.controls = [
+            AppNavigation(self._on_navigate),
+            self.header_area,
+            self.content_area,
+        ]
 
     @staticmethod
     def _app_header(content: ft.Control) -> AppHeader:

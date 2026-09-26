@@ -11,10 +11,13 @@ class AppNavigation(ft.Container):
     """Menu principal de SubForge."""
 
     def __init__(self, on_navigate: Callable[[str], None]):
-        super().__init__(
-            bgcolor=theme.BG,
-            padding=ft.Padding.symmetric(horizontal=20, vertical=12),
-            content=ft.Row(spacing=12, vertical_alignment=ft.CrossAxisAlignment.CENTER, controls=[
+        super().__init__()
+        self.bgcolor = theme.BG
+        self.padding = ft.Padding.symmetric(horizontal=20, vertical=12)
+        self.content = ft.Row(
+            spacing=12,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
                 ft.Row(spacing=10, controls=[
                     ft.Icon(ft.Icons.SUBTITLES_ROUNDED, color=ft.Colors.YELLOW_800, size=28),
                     ft.Text(APP_NAME, size=22, weight=ft.FontWeight.BOLD, color=theme.TEXT),
@@ -25,5 +28,5 @@ class AppNavigation(ft.Container):
                 NavButton("Conversion", ft.Icons.AUTO_FIX_HIGH_ROUNDED, "conversion", on_navigate),
                 ft.Container(expand=True),
                 NavButton("Paramètres", ft.Icons.SETTINGS_ROUNDED, "settings", on_navigate),
-            ]),
+            ],
         )

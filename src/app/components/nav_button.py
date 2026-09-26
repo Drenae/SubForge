@@ -11,17 +11,17 @@ class NavButton(ft.Button):
                 ft.Icon(icon, size=20, color=ft.Colors.BLACK),
                 ft.Text(label, color=ft.Colors.BLACK),
             ]),
-            style=ft.ButtonStyle(
-                padding=ft.Padding.symmetric(horizontal=12, vertical=14),
-                shape=ft.RoundedRectangleBorder(radius=6),
-                side={
-                    ft.ControlState.DEFAULT: ft.BorderSide(2, ft.Colors.YELLOW_800),
-                    ft.ControlState.HOVERED: ft.BorderSide(2, ft.Colors.YELLOW_800),
-                },
-                bgcolor={
-                    ft.ControlState.DEFAULT: ft.Colors.YELLOW_700,
-                    ft.ControlState.HOVERED: ft.Colors.YELLOW_800,
-                },
-            ),
-            on_click=lambda _: on_navigate(route),
         )
+        self.style = ft.ButtonStyle(
+            padding=ft.Padding.symmetric(horizontal=12, vertical=14),
+            shape=ft.RoundedRectangleBorder(radius=6),
+            side={
+                ft.ControlState.DEFAULT: ft.BorderSide(2, ft.Colors.YELLOW_800),
+                ft.ControlState.HOVERED: ft.BorderSide(2, ft.Colors.YELLOW_800),
+            },
+            bgcolor={
+                ft.ControlState.DEFAULT: ft.Colors.YELLOW_700,
+                ft.ControlState.HOVERED: ft.Colors.YELLOW_800,
+            },
+        )
+        self.on_click = lambda _: on_navigate(route)
