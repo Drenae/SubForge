@@ -1,6 +1,6 @@
 import flet as ft
 
-from app.components.app_shell import AppShell
+from app.layout.app_shell import AppShell
 from app.config import theme
 from app.config.settings import (
     APP_NAME,
