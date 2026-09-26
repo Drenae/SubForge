@@ -2,7 +2,7 @@ import flet as ft
 from pathlib import Path
 
 from app.config import theme
-from app.components.app_button import AppButton
+from app.layout.app_button import AppButton
 from app.layout.app_header_button import AppHeaderButton
 from app.services.extraction_service import ExtractionJob, ExtractionService
 from app.state.media_state import MediaState
