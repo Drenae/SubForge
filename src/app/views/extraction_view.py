@@ -11,6 +11,7 @@ from app.state.media_state import MediaState
 class ExtractionView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Extraction"
+        self.header_icon = ft.Icons.SAVE_ALT_ROUNDED
         self.subtitle = "Extrait les pistes cochées dans Accueil dans leur format d'origine, sans conversion."
         self.actions = [AppHeaderButton("Extraire", icon=ft.Icons.SAVE_ALT_ROUNDED, on_click=self._extract)]
         self.state = state

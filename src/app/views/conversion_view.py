@@ -14,6 +14,7 @@ from app.state.media_state import MediaState
 class ConversionView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Conversion"
+        self.header_icon = ft.Icons.AUTO_FIX_HIGH_ROUNDED
         self.subtitle = "Convertissez des sous-titres PGS en SRT avec l'OCR intégré."
         self.actions = []
         self.state = state

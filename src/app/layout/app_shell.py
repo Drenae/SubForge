@@ -24,7 +24,8 @@ class AppShell(ft.Column):
 
     @staticmethod
     def _app_header(content: ft.Control) -> AppHeader:
-        return AppHeader(content.title, content.subtitle, content.actions)
+        return AppHeader(content.title, content.subtitle, content.actions,
+                         icon=content.header_icon)
 
     def set_content(self, content: ft.Control) -> None:
         self.header_area.content = self._app_header(content)

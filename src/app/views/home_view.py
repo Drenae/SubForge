@@ -14,6 +14,7 @@ from app.services.ffprobe_service import FFprobeService, FFprobeError
 class HomeView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Accueil"
+        self.header_icon = ft.Icons.HOME_ROUNDED
         self.subtitle = "Importez et sélectionnez les sous-titres à traiter."
         self.actions = [AppHeaderButton("Analyser", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze)]
         self.state = state

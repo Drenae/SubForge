@@ -9,6 +9,7 @@ from app.services.tool_detection_service import ToolDetectionService
 class SettingsView(ft.Column):
     def __init__(self):
         self.title = "Paramètres"
+        self.header_icon = ft.Icons.SETTINGS_ROUNDED
         self.subtitle = "Vérifiez les outils utilisés par SubForge."
         self.actions = []
         self.tools_column = ft.Column(spacing=12)
