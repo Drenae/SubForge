@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 import flet as ft
 
-from app.components.nav_button import NavButton
+from app.components.app_navigation_button import AppNavigationButton
 from app.config import theme
 from app.config.settings import APP_NAME
 
@@ -23,10 +23,10 @@ class AppNavigation(ft.Container):
                     ft.Text(APP_NAME, size=22, weight=ft.FontWeight.BOLD, color=theme.TEXT),
                 ]),
                 ft.Container(width=16),
-                NavButton("Accueil", ft.Icons.HOME_ROUNDED, "home", on_navigate),
-                NavButton("Extraction", ft.Icons.SAVE_ALT_ROUNDED, "extraction", on_navigate),
-                NavButton("Conversion", ft.Icons.AUTO_FIX_HIGH_ROUNDED, "conversion", on_navigate),
+                AppNavigationButton("Accueil", ft.Icons.HOME_ROUNDED, "home", on_navigate),
+                AppNavigationButton("Extraction", ft.Icons.SAVE_ALT_ROUNDED, "extraction", on_navigate),
+                AppNavigationButton("Conversion", ft.Icons.AUTO_FIX_HIGH_ROUNDED, "conversion", on_navigate),
                 ft.Container(expand=True),
-                NavButton("Paramètres", ft.Icons.SETTINGS_ROUNDED, "settings", on_navigate),
+                AppNavigationButton("Paramètres", ft.Icons.SETTINGS_ROUNDED, "settings", on_navigate),
             ],
         )
