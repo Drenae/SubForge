@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 import flet as ft
 
-from app.components.app_navigation_button import AppNavigationButton
+from app.layout.app_navigation_button import AppNavigationButton
 from app.config import theme
 from app.config.settings import APP_NAME
 
