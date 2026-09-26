@@ -3,6 +3,7 @@ from pathlib import Path
 
 from app.config import theme
 from app.components.app_button import AppButton
+from app.layout.app_header_button import AppHeaderButton
 from app.services.extraction_service import ExtractionJob, ExtractionService
 from app.state.media_state import MediaState
 
@@ -11,7 +12,7 @@ class ExtractionView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Extraction"
         self.subtitle = "Extrait les pistes cochées dans Accueil dans leur format d'origine, sans conversion."
-        self.actions = []
+        self.actions = [AppHeaderButton("Extraire", icon=ft.Icons.SAVE_ALT_ROUNDED, on_click=self._extract)]
         self.state = state
         self.picker = ft.FilePicker()
         self.destination: Path | None = None
