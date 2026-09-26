@@ -13,7 +13,7 @@ class AppHeader(ft.Container):
         self.content = ft.Row(
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
-                *([ft.Icon(icon, size=34, color=ft.Colors.BLACK)] if icon is not None else []),
+                *([ft.Icon(icon, size=50, color=ft.Colors.BLACK)] if icon is not None else []),
                 ft.Column(expand=True, spacing=2, controls=[
                     ft.Text(title, size=30, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
                     ft.Text(subtitle, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK_54),
