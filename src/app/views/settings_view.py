@@ -1,7 +1,7 @@
 import flet as ft
 
 from app.components.tool_status_card import ToolStatusCard
-from app.components.app_button import AppButton
+from app.layout.app_button import AppButton
 from app.config import theme
 from app.services.tool_detection_service import ToolDetectionService
 
