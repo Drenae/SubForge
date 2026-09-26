@@ -1,6 +1,6 @@
 import flet as ft
 
-from app.components.app_header import AppHeader
+from app.layout.app_header import AppHeader
 from app.components.app_navigation import AppNavigation
 
 
