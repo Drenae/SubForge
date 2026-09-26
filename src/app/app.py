@@ -38,6 +38,7 @@ class SubForgeApp:
         self.page.window.height = WINDOW_HEIGHT
         self.page.window.min_width = WINDOW_MIN_WIDTH
         self.page.window.min_height = WINDOW_MIN_HEIGHT
+        self.page.window.maximized = True
 
     def navigate(self, route: str) -> None:
         if route == "extraction":
