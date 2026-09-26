@@ -6,7 +6,7 @@ class AppHeader(ft.Container):
 
     def __init__(self, title: str, subtitle: str, actions: list[ft.Control] | None = None):
         super().__init__()
-        self.border = ft.Border(bottom=ft.BorderSide(2, ft.Colors.YELLOW_600))
+        self.border = ft.Border(top=ft.BorderSide(2, ft.Colors.YELLOW_600), bottom=ft.BorderSide(2, ft.Colors.YELLOW_600))
         self.padding = ft.Padding.symmetric(horizontal=24, vertical=18)
         self.bgcolor = ft.Colors.YELLOW_800
         self.content = ft.Row(
