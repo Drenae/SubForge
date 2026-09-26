@@ -19,7 +19,7 @@ class AppNavigation(ft.Container):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
                 ft.Row(spacing=10, controls=[
-                    ft.Icon(ft.Icons.SUBTITLES_ROUNDED, color=ft.Colors.YELLOW_800, size=28),
+                    ft.Icon(ft.Icons.SUBTITLES_OUTLINED, color=ft.Colors.AMBER, size=38),
                     ft.Text(APP_NAME, size=22, weight=ft.FontWeight.BOLD, color=theme.TEXT),
                 ]),
                 ft.Container(width=16),
