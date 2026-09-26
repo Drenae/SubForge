@@ -14,11 +14,12 @@ class AppNavigationButton(ft.Button):
             padding=ft.Padding.symmetric(horizontal=12, vertical=14),
             shape=ft.RoundedRectangleBorder(radius=6),
             side={
-                ft.ControlState.DEFAULT: ft.BorderSide(2, ft.Colors.YELLOW_800)
+                ft.ControlState.DEFAULT: ft.BorderSide(2, ft.Colors.with_opacity(0.6, ft.Colors.AMBER)),
+                ft.ControlState.HOVERED: ft.BorderSide(2, ft.Colors.AMBER)
             },
             bgcolor={
-                ft.ControlState.DEFAULT: ft.Colors.AMBER,
-                ft.ControlState.HOVERED: ft.Colors.AMBER_100,
+                ft.ControlState.DEFAULT: ft.Colors.with_opacity(0.6, ft.Colors.AMBER),
+                ft.ControlState.HOVERED: ft.Colors.AMBER,
             },
         )
         self.on_click = lambda _: on_navigate(route)
