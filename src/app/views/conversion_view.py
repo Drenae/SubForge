@@ -3,7 +3,7 @@ from pathlib import Path
 import flet as ft
 
 from app.config import theme
-from app.components.app_button import AppButton
+from app.layout.app_button import AppButton
 from app.services.extraction_service import ExtractionJob
 from app.services.ocr_service import OcrError, OcrService
 from app.services.ocr_batch_service import OcrBatchService
