@@ -4,7 +4,7 @@ import flet as ft
 
 from app.layout.app_header_button import AppHeaderButton
 from app.config import theme
-from app.components.app_button import AppButton
+from app.layout.app_button import AppButton
 from app.state.media_state import MediaState
 from app.models.track_filter import TrackFilter
 from app.services.media_import_service import MediaImportService
