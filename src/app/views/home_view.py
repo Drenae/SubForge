@@ -2,6 +2,7 @@ import asyncio
 
 import flet as ft
 
+from app.layout.app_header_button import AppHeaderButton
 from app.config import theme
 from app.components.app_button import AppButton
 from app.state.media_state import MediaState
@@ -14,7 +15,7 @@ class HomeView(ft.Column):
     def __init__(self, state: MediaState):
         self.title = "Accueil"
         self.subtitle = "Importez et sélectionnez les sous-titres à traiter."
-        self.actions = [AppButton("Analyser", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze)]
+        self.actions = [AppHeaderButton("Analyser", icon=ft.Icons.SUBTITLES_ROUNDED, on_click=self._analyze)]
         self.state = state
         self.picker = ft.FilePicker()
         self.status = ft.Text(color=theme.TEXT_MUTED, selectable=True)
