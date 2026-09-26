@@ -1,9 +1,7 @@
 import flet as ft
 
-from app.config import theme
 
-
-class PageHeader(ft.Container):
+class AppHeader(ft.Container):
     """En-tête partagé : titre, sous-titre et actions à droite."""
 
     def __init__(self, title: str, subtitle: str, actions: list[ft.Control] | None = None):
